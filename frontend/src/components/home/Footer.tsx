@@ -15,7 +15,7 @@ export default function Footer() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("enviando...");
 
@@ -96,30 +96,30 @@ export default function Footer() {
 
             <div className="flex gap-8 text-3xl text-[var(--color-dark)]">
               <a
-                href="https://www.instagram.com/moonlightestampas/"
+                href="https://www.instagram.com/zhyra.online/"
                 target="_blank"
                 className="hover:text-white transition"
               >
                 <FaInstagram />
               </a>
               <a
-                href="https://wa.me/542226622903"
+                href="https://wa.me/541164806794?text=Hola!%20Me%20interesa%20obtener%20mas%20información!"
                 target="_blank"
                 className="hover:text-white transition"
               >
                 <FaWhatsapp />
               </a>
-              <a href="tel:2226622903" className="hover:text-white transition">
+              <a href="tel:541164806794" className="hover:text-white transition">
                 <FaPhone />
               </a>
               <a
-                href="mailto:moonlightestampas@gmail.com"
+                href="mailto:zhyra.online@gmail.com"
                 className="hover:text-white transition"
               >
                 <FaEnvelope />
               </a>
               <a
-                href="https://www.tiktok.com/@tiendamoonlight"
+                href="https://www.tiktok.com/@zhyra.online"
                 target="_blank"
                 className="hover:text-white transition"
               >
@@ -128,7 +128,7 @@ export default function Footer() {
             </div>
 
             <p className="mt-2 text-sm text-[var(--color-dark)]">
-              moonlightestampas@gmail.com
+              zhyra.online@gmail.com
             </p>
           </div>
 
@@ -193,13 +193,13 @@ export default function Footer() {
 
           <p className="mt-4 text-md text-[var(--color-dark)]">
             Por correo argentino a sucursal y a domicilio, o retiros por
-            Moonlight Point a coordinar (Moron, Ituzaingo, Once, Recoleta)
+            Zhyra.online Point a coordinar (La Ferrere, San Justo, Ramos Mejia,Virrey del Pino)
           </p>
         </div>
 
         {/* Derechos reservados */}
         <div className="text-center text-sm mt-12 text-[var(--color-dark)]">
-          © {new Date().getFullYear()} - Moonlight. Todos los derechos
+          © {new Date().getFullYear()} - Zhyra.online. Todos los derechos
           reservados.
         </div>
       </div>

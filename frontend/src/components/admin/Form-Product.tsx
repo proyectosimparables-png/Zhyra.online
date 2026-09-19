@@ -8,7 +8,7 @@ import {
   publicarProducto,
 } from "@/services/admin/admin-products-actions";
 import toast from "react-hot-toast";
-import EditorDescripcion from "./EditorDescripcion";
+
 import {
   XMarkIcon,
   CameraIcon,
@@ -18,6 +18,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { CategoriaTreeSelector } from "../products/Categoria-Tree-Selector";
 import Image from "next/image";
+import EditorDescripcion from "./Description-Editor";
 
 // --- INTERFACES DE TIPADO ---
 interface VarianteEstado {
@@ -94,7 +95,7 @@ export default function FormProducto() {
   useEffect(() => {
     getSecciones()
       .then((data: Seccion[]) => {
-        console.log("📂 Secciones cargadas:", data);
+       
         setSecciones(data);
       })
       .catch((err) => console.error("❌ Error al cargar secciones:", err));
@@ -187,7 +188,7 @@ export default function FormProducto() {
     }
 
     setLoading(true);
-    console.group("🚀 Moonlight: Enviando Producto");
+    console.group("🚀 Zhyra: Enviando Producto");
 
     const formData = new FormData();
 
@@ -277,7 +278,7 @@ export default function FormProducto() {
         className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-100 space-y-10"
       >
         <h2 className="text-2xl font-bold text-gray-800 border-b pb-4">
-          Nuevo Producto Moonlight
+          Nuevo Producto Zhyra
         </h2>
 
         {/* DATOS BÁSICOS */}

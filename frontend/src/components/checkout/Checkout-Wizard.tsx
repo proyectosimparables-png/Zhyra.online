@@ -6,6 +6,7 @@ import Step1Datos from "./Step-1-Data";
 import Step2Pago from "./Step-2-Payment";
 import OrderSummary from "./Order-Summary";
 import Image from "next/image";
+import Link from "next/dist/client/link";
 
 const CheckoutContent: React.FC = () => {
   const { step } = useCheckout();
@@ -13,15 +14,18 @@ const CheckoutContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FAFCEF] font-sans text-[#4A4A4A]">
       <header className="py-10 flex flex-col items-center bg-transparent">
-        <div className="mb-10">
-          <Image
-            src="/moonlight.png"
-            alt="Moonlight"
-            width={120}
-            height={40}
-            className="h-10 w-auto"
-          />
-        </div>
+        <Link href="/">
+                <div className="h-20 w-20 md:h-24 md:w-24 rounded-full overflow-hidden border-2 border-purple-100 shadow-lg cursor-pointer hover:scale-105 transition-transform duration-300 bg-black flex items-center justify-center p-1">
+                  <Image
+                    src="/logozhyra.jpeg"
+                    alt="Zhyra Logo"
+                    width={100}
+                    height={100}
+                    priority
+                    className="object-cover rounded-full"
+                  />
+                </div>
+              </Link>
 
         {/* Stepper Visual */}
         <div className="relative flex items-center justify-between w-full max-w-md px-6">

@@ -26,7 +26,7 @@ export interface OrderPayload {
     metodoPago: string;
     notasEntrega?: string;
     cuponCodigo?: string;
-    items: OrderItem[];
+    
 }
 
 // 📦 LA POSTA: Interfaz unificada para todo el Panel de Administración

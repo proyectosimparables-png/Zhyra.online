@@ -11,7 +11,7 @@ export const promocionesService = {
 
         return await apiRequest<CuponResponse>(
             `/promociones/validar-cupon/${codigo.toUpperCase()}?montoCarrito=${montoCarrito}`,
-            { cache: "no-store" }
+            { cache: "no-store", credentials: "include" } // Asegura que las cookies de sesión se envíen con la solicitud
         );
     }
 };

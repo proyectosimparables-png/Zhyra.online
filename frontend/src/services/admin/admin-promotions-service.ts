@@ -15,7 +15,7 @@ export const promocionesService = {
 
     async getPromociones(): Promise<PromocionResponse[]> {
         try {
-            return await apiRequest<PromocionResponse[]>("/promociones", { cache: "no-store" });
+            return await apiRequest<PromocionResponse[]>("/promociones", { cache: "no-store" ,credentials: "include" });
         } catch (error) {
             console.error("Error al obtener promociones:", error);
             return [];
@@ -26,12 +26,14 @@ export const promocionesService = {
         return await apiRequest<PromocionResponse>("/promociones", {
             method: "POST",
             body: JSON.stringify(data),
+            credentials: "include" // Asegura que las cookies de sesión se envíen con la solicitud
         });
     },
 
     async deletePromocion(id: string): Promise<PromocionResponse> {
         return await apiRequest<PromocionResponse>(`/promociones/${id}`, {
             method: "DELETE",
+            credentials: "include" // Asegura que las cookies de sesión se envíen con la solicitud
         });
     },
 
@@ -41,7 +43,7 @@ export const promocionesService = {
 
     async getCupones(): Promise<CuponResponse[]> {
         try {
-            return await apiRequest<CuponResponse[]>("/promociones/cupon", { cache: "no-store" });
+            return await apiRequest<CuponResponse[]>("/promociones/cupon", { cache: "no-store" ,credentials: "include" });
         } catch (error) {
             console.error("Error al obtener cupones:", error);
             return [];
@@ -52,7 +54,9 @@ export const promocionesService = {
         return await apiRequest<CuponResponse>("/promociones/cupon", {
             method: "POST",
             body: JSON.stringify(data),
+            credentials: "include" // Asegura que las cookies de sesión se envíen con la solicitud
         });
+        
     },
 
 
@@ -61,6 +65,7 @@ export const promocionesService = {
         return await apiRequest<CuponResponse>(`/promociones/cupon/${id}`, {
             method: "PATCH",
             body: JSON.stringify(data),
+            credentials: "include" // Asegura que las cookies de sesión se envíen con la solicitud
         });
     },
 
@@ -68,6 +73,7 @@ export const promocionesService = {
 
         return await apiRequest<CuponResponse>(`/promociones/cupon/${id}`, {
             method: "DELETE",
+            credentials: "include" // Asegura que las cookies de sesión se envíen con la solicitud
         });
     },
 };

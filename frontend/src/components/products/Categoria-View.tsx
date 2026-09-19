@@ -11,6 +11,11 @@ interface Producto {
   imagenHoverUrl?: string;
   categoriaId?: string;
   slug: string;
+  promociones?: {
+    id: string;
+    nombre: string;
+    tipo: string;
+  }[];
 }
 
 interface CategoriaTree {
@@ -81,7 +86,7 @@ export const CategoriaView = ({
       productosAMostrar: filtrados,
     };
   }, [categoriaPath, initialTree, initialProducts]);
-  console.log("Primer producto:", productosAMostrar[0]);
+
   return (
     <div className="container mx-auto px-4 py-10 min-h-screen">
       <header className="mb-12 text-center">
@@ -107,6 +112,8 @@ export const CategoriaView = ({
               {...p}
               id={p.id} // Este es el UUID para el carrito/favoritos
               slug={p.slug} // Este es para la URL
+              promociones={p.promociones ?? []}
+             
             />
           ))
         ) : (

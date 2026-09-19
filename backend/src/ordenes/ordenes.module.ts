@@ -5,13 +5,15 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { PaymentsModule } from 'src/payments/payments.module';
 import { PromocionModule } from 'src/promocion/promocion.module';
 import { MailModule } from 'src/mail/mail.module'; // 👈 1. Importar el módulo
+import { LocalAuthModule } from 'src/auth/local/local.module';
 
 @Module({
   imports: [
     PromocionModule,
     PrismaModule,
     PaymentsModule,
-    MailModule, // 👈 2. Agregar a la lista de imports
+    MailModule, 
+    LocalAuthModule
   ],
   controllers: [OrdenesController],
   providers: [OrdenesService],

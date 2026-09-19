@@ -134,7 +134,7 @@ export const FormPromocion = () => {
 
       await promocionesService.createPromocion(payload);
       toast.success("Promoción creada con éxito");
-      router.push("/admin/promociones");
+      router.push("/admin/promotions/formulario");
     } catch (error) {
       console.error("Error al crear la promoción:", error);
       toast.error("Error al crear la promoción");

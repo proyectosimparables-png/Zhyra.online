@@ -1,6 +1,8 @@
 // src/app/admin/configuracion-envio/page.tsx
 
-import ConfigEnvio from "@/componentes/admin/ConfigEnvio";
+import ConfigEnvio from "@/components/admin/Shipping-Config";
+
+
 
 export default function ConfigEnvioPage() {
   return (

@@ -3,15 +3,15 @@
 import Link from "next/link";
 import { useNightMode } from "@/context/Night-Mode-Context";
 
-const MoonlightClubBanner = () => {
+const ZhyraOnlineClubBanner = () => {
   const { isNight } = useNightMode();
 
   return (
     <Link
-      href="https://chat.whatsapp.com/Do2hZGWnlQPH7OyldNlgp5"
+      href="https://whatsapp.com/channel/0029VbDj59P3mFXzjmRsto3b"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Unite a Moonlight Club"
+      aria-label="Unite a Zhyra Online Club"
       className="block"
     >
       <div
@@ -26,14 +26,14 @@ const MoonlightClubBanner = () => {
               ${isNight ? "text-[#f5e9ff]" : "text-white"}
             `}
           >
-            ✨ HACE CLICK Y UNITE A #MOONLIGHTCLUB ✨
+            ✨ HACE CLICK Y UNITE A #ZHYRA.ONLINECLUB ✨
           </span>
           <span
             className={`mx-8 text-lg md:text-xl font-serif italic tracking-wide
               ${isNight ? "text-[#f5e9ff]" : "text-white"}
             `}
           >
-            ✨ HACE CLICK Y UNITE A #MOONLIGHTCLUB ✨
+            ✨ HACE CLICK Y UNITE A #ZHYRA.ONLINECLUB ✨
           </span>
         </div>
 
@@ -59,4 +59,4 @@ const MoonlightClubBanner = () => {
   );
 };
 
-export default MoonlightClubBanner;
+export default ZhyraOnlineClubBanner;

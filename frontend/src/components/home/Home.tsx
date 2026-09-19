@@ -4,33 +4,43 @@ import { useEffect, useState } from "react";
 import HeroCarousel from "@/components/home/Hero-Carousel";
 import ProductSection from "@/components/home/Product-Section";
 import ComentariosSection from "../comments/Comments-Section";
-import MoonlightClubBanner from "@/components/home/Moonlight-Club-Banner";
 import { apiRequest } from "@/lib/apiClient"; // 👈 Importamos tu cliente centralizado
+import ZhyraOnlineClubBanner from "@/components/home/Zhyra-Club-Banner";
 
 interface Product {
   id: string;
   nombre: string;
   precio: string;
   imagenes?: string[];
+  promociones?: {
+    id: string;
+    nombre: string;
+    tipo: string;
+  }[];
 }
 
 interface Section {
   id: string;
   nombre: string;
   slug: string;
+  promocion?: {
+    id: string;
+    nombre: string;
+    descuento: number;
+  };
   productos: Product[];
 }
 
 const Home = () => {
   const [sections, setSections] = useState<Section[]>([]);
-  const visibleSections = ["Novedades", "Los más elegidos", "Outlet"];
+  const visibleSections = ["Body", "Remeras", "Deportiva", "Vestidos", "Ofertas"];
 
   useEffect(() => {
     const fetchSections = async () => {
       try {
         // 👈 Usamos apiRequest apuntando al endpoint directo
-        const data = await apiRequest<Section[]>("/productos/secciones");
-
+        const data = await  apiRequest<Section[]>("/productos/secciones");
+      
         const filteredAndSorted = data
           .filter((section) => visibleSections.includes(section.nombre))
           .sort(
@@ -48,30 +58,43 @@ const Home = () => {
     fetchSections();
   }, []);
 
+  
+
   return (
     <div className="min-h-screen flex flex-col text-[#6c5b7b]">
       <main className="flex-1">
         <HeroCarousel />
 
-        {sections.map((section) => (
-          <div key={section.id} className="my-8">
-            <ProductSection
-              title={section.nombre}
-              slug={section.slug}
-              products={section.productos.map((p) => ({
-                id: p.id,
-                nombre: p.nombre,
-                precio: p.precio,
-                imagenes:
-                  p.imagenes && p.imagenes.length > 0
-                    ? p.imagenes
-                    : ["/images/placeholder.png"],
-              }))}
-            />
-            {section.nombre === "Novedades" && <MoonlightClubBanner />}
-          </div>
-        ))}
+       {sections.map((section) => (
+  <div key={section.id} className="my-8">
+    <ProductSection
+      title={section.nombre}
+      slug={section.slug}
+     promocion={section.promocion}
+      promoName={section.productos[0]?.promociones?.[0]?.nombre} // Pasamos el nombre de la promoción del primer producto
+      products={section.productos.map((p) => ({
+        id: p.id,
+        nombre: p.nombre,
+        precio: p.precio,
+        imagenes:
+          p.imagenes && p.imagenes.length > 0
+            ? p.imagenes
+            : ["/images/placeholder.png"],
+        // 1. Si el producto trae promociones en su array, las usamos
+        // 2. Si no trae, usamos la promoción de la sección (si existe)
+        promociones:
+          p.promociones && p.promociones.length > 0
+            ? p.promociones
+            : section.promocion
+            ? [{ ...section.promocion, tipo: "porcentaje" as const }]
+            : [],
+      }))}
+    />
+    {/* <span>{promoName}</span> */}
+  </div>
+))}
       </main>
+      <ZhyraOnlineClubBanner />
       <ComentariosSection />
     </div>
   );

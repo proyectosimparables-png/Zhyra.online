@@ -1,10 +1,16 @@
 // app/admin/cupones/page.tsx
-import FormCupon from "@/componentes/admin/FormCupon";
+//Agrego para subir al server:
+//"use client"; /
+"use client";
+import FormCupon from "@/components/admin/Form-Coupon";
+
 
 export default function CuponesPage() {
   return (
     <div className="p-4">
-      <FormCupon />
+      <FormCupon onSuccess={function (): void {
+        throw new Error("Function not implemented.");
+      } } />
     </div>
   );
 }

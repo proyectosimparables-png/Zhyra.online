@@ -1,9 +1,32 @@
-import ConfigMantenimiento from "@/componentes/admin/ConfigMantenimiento";
+// src/app/mantenimiento/page.tsx
 
-export default function MantenimientoAdminPage() {
+import { MantenimientoForm } from "@/components/admin/Maintenance-Form";
+import { Suspense } from "react";
+
+export default async function MantenimientoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ msg?: string }>;
+}) {
+  const { msg } = await searchParams;
+  const mensajeDefault = "Estamos renovando nuestra magia para vos.";
+
   return (
-    <div className="p-4 md:p-8">
-      <ConfigMantenimiento />
-    </div>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] text-white p-4">
+      <div className="text-center mb-12">
+        <h1 className="text-5xl font-bold mb-4 tracking-tighter text-white">
+          Zhyra.online
+        </h1>
+        <div className="w-16 h-1px bg-yellow-500/50 mx-auto"></div>
+      </div>
+
+      <Suspense fallback={<div className="text-zinc-500">Cargando...</div>}>
+        <MantenimientoForm mensaje={msg || mensajeDefault} />
+      </Suspense>
+
+      <p className="mt-12 text-zinc-600 text-[10px] tracking-[0.3em] uppercase font-medium">
+        © 2024 Zhyra.online. Todos los derechos reservados.
+      </p>
+    </main>
   );
 }

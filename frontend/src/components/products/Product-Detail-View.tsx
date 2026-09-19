@@ -195,20 +195,26 @@ export default function DetailsProducts({
                 Bancaria o Depósito 💜
               </p>
 
-              <div className="pt-4 space-y-2">
-                <div className="flex items-center gap-2">
+             <div className="pt-4 space-y-2">
+                {/*}
                   <span className="bg-[#ff0066] text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center justify-center">
                     GO
                   </span>
-                  <span className="text-gray-700 font-bold text-lg">
-                    Cuotas SIN interés con{" "}
-                    <span className="font-extrabold">DÉBITO</span>
+                  
+                </div>
+                 dev> */}
+                  <div className="flex items-center gap-2">
+                 <span className="text-gray-700 font-bold text-lg">
+                    Cuotas SIN interés {" "}
+                    <span className="font-extrabold"></span>
                   </span>
                   <Info className="w-4 h-4 text-[#ff0066]" />
-                </div>
                 <p className="text-gray-600">
-                  3 cuotas sin interés de {formatPriceClean(valorCuotaGO)}
+                  3 cuotas sin interés
                 </p>
+                </div>
+              
+                
                 <p className="text-gray-600 text-sm">
                   10% de descuento pagando con Transferencia Bancaria o Depósito
                   💜
@@ -219,8 +225,8 @@ export default function DetailsProducts({
             {/* CARTEL DE TIEMPO DE PRODUCCIÓN */}
             <div className="bg-[#f3f0ff] border-l-4 border-[#7b5ca2] p-4 mb-8 rounded-r-xl">
               <p className="text-[#6c5b7b] text-xs font-bold leading-relaxed uppercase">
-                Nuestro tiempo de producción en remeras es de 10 a 14 días
-                hábiles. <br />
+                
+                 <br />
                 Consultar por productos en stock para entrega inmediata.
               </p>
             </div>

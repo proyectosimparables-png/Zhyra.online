@@ -23,7 +23,7 @@ export class MailService {
   async sendMail(to: string, subject: string, html: string) {
     try {
       const info = await this.transporter.sendMail({
-        from: `"Moonlight Estampas" <${process.env.SMTP_USER}>`,
+        from: `"Zhyra.online" <${process.env.SMTP_USER}>`,
         to,
         subject,
         html,
@@ -55,7 +55,7 @@ export class MailService {
 
         <p>Si ya habías realizado el pago, nuestro equipo se pondrá en contacto para coordinar el reembolso.</p>
         <p style="font-size: 0.8em; color: #999; border-top: 1px solid #eee; padding-top: 10px; margin-top: 20px;">
-          Atentamente, Equipo Moonlight Estampas 🌙
+          Atentamente, Equipo Zhyra.online 🌙
         </p>
       </div>
     `;

@@ -6,16 +6,21 @@ import { AuthContext } from "@/context/Auth-Context";
 import { updateUserAddress } from "@/services/user-profile-service";
 import toast from "react-hot-toast";
 
-// Tipo común para ambas respuestas
-type AddressResponse = {
-  message: string;
-  user: {
-    id: string;
-    email: string;
-    name?: string;
-    address: string;
-  };
-};
+// Tipo común adaptado a la firma real de las funciones (message es opcional)
+type AddressResponse =
+  | {
+      message?: string;
+      user: {
+        id: string;
+        email: string;
+        name?: string;
+        address: string;
+      };
+    }
+  | {
+      message?: string;
+      address: string;
+    };
 
 export default function UserProfile() {
   const auth = useContext(AuthContext);
@@ -87,10 +92,16 @@ export default function UserProfile() {
         res = await updateUserAddress(addressInput);
       }
 
+      // Extrae la nueva dirección sin importar la variante de respuesta que retorne
+    const newAddress =
+  "user" in res && res.user
+    ? (res as { user: { address: string } }).user.address
+    : (res as { address: string }).address;
+
       // Actualiza el contexto
       setUser((prev) => ({
         ...prev!,
-        address: res.user.address,
+        address: newAddress,
       }));
 
       setAddressInput("");

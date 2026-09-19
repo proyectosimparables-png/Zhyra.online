@@ -8,6 +8,12 @@ interface Producto {
   precio: string;
   imagenUrl: string;
   imagenHoverUrl?: string;
+  promociones?: promocion[];
+}
+interface promocion {
+  id: string;
+  nombre: string;
+  tipo: string;
 }
 
 interface Props {
@@ -38,6 +44,9 @@ export const ProductGridView = ({ titulo, initialProducts = [] }: Props) => {
               precio={p.precio}
               imagenUrl={p.imagenUrl}
               imagenHoverUrl={p.imagenHoverUrl}
+  
+             promociones={p.promociones}
+              slug={p.nombre.toLowerCase().replace(/\s+/g, "-")}
             />
           ))}
         </div>

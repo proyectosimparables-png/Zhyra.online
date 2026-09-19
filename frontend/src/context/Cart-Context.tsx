@@ -115,10 +115,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [configEnvio, setConfigEnvio] = useState<ConfigEnvio | null>(null);
 
   // --- NUEVO: Cargar configuración de envío desde el back (Puerto 3000) ---
-  useEffect(() => {
+ /* useEffect(() => {
     const fetchConfig = async () => {
       try {
-        const res = await fetch("http://localhost:3000/configuracion-tienda");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/configuracion-tienda`);
         if (res.ok) {
           const data = await res.json();
           setConfigEnvio(data);
@@ -128,7 +128,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
     };
     fetchConfig();
-  }, []);
+  }, []);*/
 
   // --- NUEVO: Cálculos de envío gratis ---
   const { esEnvioGratis, montoFaltante } = useMemo(() => {

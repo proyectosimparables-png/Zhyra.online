@@ -1,10 +1,9 @@
 "use client";
 
-import { Trash2, Star } from "lucide-react";
+import { Trash2, Star, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/context/Favorites-Context";
 import { useEffect, useState } from "react";
-import Image from "next/image"; // Importamos Image para renderizar a Jefecito
 import toast from "react-hot-toast";
 import ProductCard from "./Product-Card";
 import { Favorito } from "@/types/products";
@@ -42,22 +41,13 @@ export default function FavoritosList() {
   }
 
   // ====================================================================
-  // ESTADO VACÍO: Con Jefecito Triste 🐾
+  // ESTADO VACÍO: Con Animación de Corazón ❤️
   // ====================================================================
   if (favorites.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-[#7b5ca2] text-center">
-        <div className="mb-4 transition-transform hover:scale-105 duration-300">
-          <Image
-            src="/jefecito-triste.png"
-            alt="Jefecito Triste"
-            width={200} // Tamaño ideal para que se aprecie el sticker
-            height={200}
-            priority
-            className="drop-shadow-lg object-contain mx-auto"
-          />
-        </div>
-        <p className="mt-2 text-lg font-medium text-[#6c5b7b]">
+        <HeartBeat /> {/* Nueva animación de corazón */}
+        <p className="mt-6 text-lg font-medium text-[#6c5b7b]">
           ¡Aún no tienes favoritos! ⭐
         </p>
       </div>
@@ -74,11 +64,12 @@ export default function FavoritosList() {
         {favorites.map((fav: Favorito) => (
           <div key={fav.id} className="relative group">
             <ProductCard
-              id={fav.productoId}
+              id={String(fav.productoId)}
               nombre={fav.producto?.nombre || ""}
               precio={fav.producto?.precio?.toString() || "0"}
               imagenUrl={fav.producto?.imagenUrl}
               imagenHoverUrl={fav.producto?.imagenHoverUrl ?? undefined}
+              slug={fav.producto?.slug || ""}
             />
 
             {/* BOTÓN ELIMINAR OPTIMIZADO: visible en móvil, hover en escritorio */}
@@ -90,7 +81,7 @@ export default function FavoritosList() {
                          transition-opacity duration-300 
                          bg-white/90 hover:bg-red-50 text-red-500 
                          border border-red-100 shadow-md rounded-full h-9 w-9"
-              onClick={(e) => handleEliminarFavorito(e, fav.productoId)}
+              onClick={(e) => handleEliminarFavorito(e,String(fav.productoId))}
               aria-label="Eliminar de favoritos"
             >
               <Trash2 className="h-4 w-4" />
@@ -107,6 +98,16 @@ function StarBeat() {
     <div className="relative">
       <Star className="h-16 w-16 text-[#f5c518] fill-[#f5c518]" />
       <div className="absolute inset-0 rounded-full animate-ping bg-[#f5c518]/30"></div>
+    </div>
+  );
+}
+
+// Nueva función de animación de corazón
+function HeartBeat() {
+  return (
+    <div className="relative">
+      <Heart className="h-20 w-20 text-[#e63946] fill-[#e63946]" />
+      <div className="absolute inset-0 rounded-full animate-ping bg-[#e63946]/30"></div>
     </div>
   );
 }

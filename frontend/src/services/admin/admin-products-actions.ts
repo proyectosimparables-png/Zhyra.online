@@ -19,6 +19,7 @@ export async function updateProductoFlexible(
     return await apiRequest<Producto>(`/productos/${id}/upload`, {
         method: "PUT",
         body: formData, // Al pasar un FormData nativo, el runtime de Next.js/Vercel configura el Content-Type correcto automáticamente
+      credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
@@ -26,30 +27,35 @@ export async function createProducto(formData: FormData): Promise<Producto> {
     return await apiRequest<Producto>("/productos/upload-producto", {
         method: "POST",
         body: formData,
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
 export async function publicarProducto(id: string): Promise<Producto> {
     return await apiRequest<Producto>(`/productos/${id}/publicar`, {
         method: "PUT",
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
 export async function deleteProducto(id: string): Promise<{ success: boolean }> {
     return await apiRequest<{ success: boolean }>(`/productos/${id}`, {
         method: "DELETE",
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
 export async function removeImagenProducto(id: string): Promise<Producto> {
     return await apiRequest<Producto>(`/productos/${id}/remover-imagen`, {
         method: "PUT",
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
 export async function eliminarCategoria(id: string): Promise<{ success: boolean }> {
     return await apiRequest<{ success: boolean }>(`/productos/categorias/${id}`, {
         method: "DELETE",
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
@@ -57,6 +63,7 @@ export async function actualizarCategoria(id: string, data: { nombre?: string; s
     return await apiRequest<CategoriaType>(`/productos/categorias/${id}`, {
         method: "PATCH",
         body: JSON.stringify(data),
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
@@ -64,6 +71,7 @@ export async function crearCategoria(data: { nombre: string; seccionNombre: stri
     return await apiRequest<CategoriaType>("/productos/categorias", {
         method: "POST",
         body: JSON.stringify(data),
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
@@ -71,6 +79,7 @@ export async function crearSeccion(data: { nombre: string }): Promise<SeccionTyp
     return await apiRequest<SeccionType>("/productos/secciones", {
         method: "POST",
         body: JSON.stringify(data),
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
@@ -78,15 +87,19 @@ export async function actualizarSeccion(id: string, data: { nombre: string }): P
     return await apiRequest<SeccionType>(`/productos/secciones/${id}`, {
         method: "PUT",
         body: JSON.stringify(data),
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
 export async function eliminarSeccion(id: string): Promise<{ success: boolean }> {
     return await apiRequest<{ success: boolean }>(`/productos/secciones/${id}`, {
         method: "DELETE",
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
 export async function getProductosAdmin(): Promise<ProductoBackend[]> {
-    return await apiRequest<ProductoBackend[]>("/productos/admin");
+    return await apiRequest<ProductoBackend[]>("/productos/admin", {
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
+    });
 }

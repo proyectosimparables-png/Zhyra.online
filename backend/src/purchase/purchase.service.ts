@@ -124,6 +124,7 @@ export class PurchaseService {
     }
   }
 
+
   /**
    * MÉTODO 3: Finalizar compra.
    */
@@ -159,7 +160,7 @@ export class PurchaseService {
 
     const htmlSuccess = `
       <div style="font-family: sans-serif; padding: 20px;">
-        <h1 style="color: #6a5acd;">¡Gracias por tu compra en Moonlight! 💜</h1>
+        <h1 style="color: #6a5acd;">¡Gracias por tu compra en Zhyra.online! 💜</h1>
         <p>Tu orden <strong>#${orden.id.split('-')[0]}</strong> ha sido recibida.</p>
         <p>En breve nos pondremos en contacto para coordinar el envío.</p>
       </div>
@@ -167,7 +168,7 @@ export class PurchaseService {
 
     await this.mailService.sendMail(
       orden.user.email,
-      'Confirmación de Compra - Moonlight Estampas',
+      'Confirmación de Compra - Zhyra.online',
       htmlSuccess,
     );
   }
@@ -175,17 +176,17 @@ export class PurchaseService {
   private getAbandonedCartTemplate(name: string, lista: string): string {
     return `
       <div style="font-family: sans-serif; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-        <h2 style="color: #6a5acd;">¡Tu carrito te extraña en Moonlight! 🌙</h2>
+        <h2 style="color: #6a5acd;">¡Tu carrito te extraña en Zhyra.online! 🌙</h2>
         <p>Hola <strong>${name || 'enamorado del arte'}</strong>,</p>
         <p>Notamos que dejaste algunas cosas especiales. Tus elegidos todavía te están esperando:</p>
         <ul style="list-style: none; padding: 0;">${lista}</ul>
         <div style="margin-top: 30px; text-align: center;">
-          <a href="https://moonlight-oficial.com/carrito" style="background-color: #6a5acd; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
+          <a href="https://zhyra.online/carrito" style="background-color: #6a5acd; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Terminar mi compra ahora
           </a>
         </div>
         <p style="font-size: 0.8em; color: #777; margin-top: 30px;">
-          Equipo Moonlight Estampas
+          Equipo Zhyra.online
         </p>
       </div>
     `;

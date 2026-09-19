@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { User, Clock, LogOut, UserCircle, Star } from "lucide-react";
+import { User, Clock, LogOut, UserCircle, Star, Heart } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
@@ -92,7 +92,7 @@ export const AuthButton = () => {
           onClick={() => router.push("/favoritos")}
           className="cursor-pointer text-[#6c5b7b] gap-2"
         >
-          <Star className="h-4 w-4 fill-[#f5c518] text-[#f5c518]" />
+         <Heart  className="h-4 w-4 fill-[#f51818] text-[#f51818]" />
           <span>Favoritos</span>
         </DropdownMenuItem>
 
@@ -100,7 +100,7 @@ export const AuthButton = () => {
           onClick={() => router.push("/historial")}
           className="cursor-pointer text-[#6c5b7b] gap-2"
         >
-          <Clock className="h-4 w-4" /> Historial
+          <Clock className="h-4 w-4" /> Mis Compras
         </DropdownMenuItem>
 
         <DropdownMenuItem

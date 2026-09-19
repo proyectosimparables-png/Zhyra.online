@@ -1,7 +1,8 @@
-import FormPuntoEntrega from "@/componentes/admin/FormPuntoEntrega";
+
+import GestionPuntosEntrega from "@/components/admin/Delivery-Point-Form";
 
 const PuntosEntregaPage = () => {
-  return <FormPuntoEntrega />;
+  return <GestionPuntosEntrega />;
 };
 
 export default PuntosEntregaPage;

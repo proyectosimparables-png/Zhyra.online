@@ -67,6 +67,8 @@ export class CartService {
 
     promosAplicadas.forEach((unidadesEnEstaPromo) => {
       const promoData = unidadesEnEstaPromo[0].promoAsignada;
+      console.log('Aplicando promo:', promoData.tipo, 'a', unidadesEnEstaPromo.length, 'unidades');
+      console.log(promoData);
 
       if (promoData.tipo === 'CANTIDAD_X_CANTIDAD') {
         if (unidadesEnEstaPromo.length >= promoData.lleva) {

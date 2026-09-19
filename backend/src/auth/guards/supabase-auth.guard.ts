@@ -17,9 +17,12 @@ export class UnifiedAuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<Request>();
     const cookies = cookie.parse(req.headers.cookie || '');
 
-    // 1. Tokens posibles
-    const supabaseToken = cookies['access_token'];
-    const localToken = cookies['auth_token'];
+    // 1. Extraer token de cookies O de Header Authorization
+    const authHeader = req.headers.authorization;
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+    const supabaseToken = cookies['access_token'] || bearerToken;
+    const localToken = cookies['auth_token'] || bearerToken;
 
     // 2. Intentar Supabase
     if (supabaseToken) {
@@ -46,11 +49,11 @@ export class UnifiedAuthGuard implements CanActivate {
         };
         return true;
       } catch (e) {
-        throw new UnauthorizedException('Token local inválido');
+        // No lanzamos excepción aquí todavía por si hay fallback o falla la firma
       }
     }
 
-    // 4. Si no hay ningún token válido
+    // 4. Si ningún token fue válido
     throw new UnauthorizedException('No autenticado');
   }
 }

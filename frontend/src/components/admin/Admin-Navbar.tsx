@@ -25,17 +25,17 @@ import { useAuth } from "@/hooks/useAuth";
 
 const menuItems = [
   { title: "Resumen", url: "/admin", icon: LayoutDashboard },
-  { title: "Ventas", url: "/admin/ventas", icon: ShoppingCart },
-  { title: "Promociones", url: "/admin/promociones", icon: Percent },
-  { title: "Cupones", url: "/admin/cupones", icon: Ticket },
-  { title: "Publicar", url: "/admin/nuevo-producto", icon: Tags },
-  { title: "Productos", url: "/admin/productos", icon: Package },
-  { title: "Secciones", url: "/admin/secciones", icon: FolderTree },
-  { title: "Usuarios", url: "/admin/usuarios", icon: Users },
-  { title: "Mantenimiento", url: "/admin/mantenimiento", icon: Wrench },
-  { title: "Ajustes de Envío", url: "/admin/configuracion-envio", icon: Truck },
-  { title: "Puntos de Entrega", url: "/admin/puntos-entrega", icon: MapPin },
-  { title: "Comentarios", url: "/admin/comentarios", icon: Cloud },
+  { title: "Ventas", url: "/admin/orders", icon: ShoppingCart },
+  { title: "Promociones", url: "/admin/promotions", icon: Percent },
+  { title: "Cupones", url: "/admin/coupons", icon: Ticket },
+  { title: "Publicar", url: "/admin/publish", icon: Tags },
+  { title: "Productos", url: "/admin/products", icon: Package },
+  { title: "Secciones", url: "/admin/sections", icon: FolderTree },
+  { title: "Usuarios", url: "/admin/users", icon: Users },
+  { title: "Mantenimiento", url: "/admin/maintenace", icon: Wrench },
+  { title: "Ajustes de Envío", url: "/admin/shipping-config", icon: Truck },
+  { title: "Puntos de Entrega", url: "/admin/pickup-points", icon: MapPin },
+  { title: "Comentarios", url: "/admin/reviews", icon: Cloud },
   { title: "Volver a la tienda", url: "/", icon: ShoppingCart },
 ];
 
@@ -59,7 +59,7 @@ export default function AdminNavbar() {
     <>
       {/* Mobile Topbar */}
       <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b shadow-sm sticky top-0 z-50">
-        <h1 className="text-lg font-bold">🛍️ Moonlight Admin</h1>
+        <h1 className="text-lg font-bold">🛍️ Zhyra Admin</h1>
         <button
           type="button"
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}

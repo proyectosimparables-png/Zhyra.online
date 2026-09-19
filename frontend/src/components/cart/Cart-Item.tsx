@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { CartItem as CartItemType } from "@/context/Cart-Context";
+import { Trash2, Plus, Minus } from "lucide-react";
 
 interface CartItemProps {
   item: CartItemType;
@@ -19,7 +20,7 @@ export default function CartItem({
   decrement,
   remove,
 }: CartItemProps) {
-  // ✅ Función de formateo de moneda argentina
+  // Formateador de moneda de Argentina
   const formatPrice = (price: number | undefined | null) => {
     if (typeof price !== "number" || isNaN(price)) return "$0";
 
@@ -30,120 +31,98 @@ export default function CartItem({
     });
   };
 
-  /** * ✅ SINCRONIZACIÓN CON LA LÓGICA DEL BACKEND
-   * Usamos 'precioUnitarioVisual' para decidir si tachamos o no el precio unitario.
-   * Usamos 'subtotalItem' y 'ahorroItem' para mostrar el beneficio final de la línea.
-   */
   const quantity = item?.quantity ?? 1;
-  const precioBaseSinPromo = item?.precioOriginal ?? 0;
-  const ahorroTotalLinea = item?.ahorroItem ?? 0;
-  const subtotalDeEstaLinea = item?.subtotalItem ?? 0;
-
-  // Si el back no manda precioUnitarioVisual, usamos el precioBase
-  const precioAMostrarUnitario =
-    item?.precioUnitarioVisual ?? precioBaseSinPromo;
-
-  // Solo tachamos si el precio unitario que calculó el back es menor al de lista
-  // (Esto pasará en 20% OFF, pero no en un 3x2 donde el unitario se mantiene)
-  const mostrarTachadoUnitario = precioAMostrarUnitario < precioBaseSinPromo;
-  const tieneAhorroEnLinea = ahorroTotalLinea > 0;
+  // Priorizamos siempre el precio real base del producto
+  const precioUnitario = item?.precioOriginal || item?.variante?.producto?.precio || 0;
+  const subtotalItem = precioUnitario * quantity;
 
   return (
-    <li className="flex gap-4 py-6 border-b border-gray-100 relative group">
+    <li className="flex gap-4 py-5 border-b border-gray-100/80 relative group transition-all">
       {/* Imagen del producto */}
-      <div className="relative w-24 h-24 bg-gray-100 rounded">
+      <div className="relative w-20 h-24 sm:w-24 sm:h-28 bg-gray-50 rounded-xl overflow-hidden shrink-0 border border-gray-100">
         <Image
-          // Cambiamos el camino: item -> variante -> producto -> imagenUrl
-          src={item.variante?.producto?.imagenUrl || "/logo-moonlight.png"}
+          src={item.variante?.producto?.imagenUrl || "/logozhyra.jpeg"}
           alt={item.variante?.producto?.nombre || "Producto"}
           fill
-          className="object-cover"
+          className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
         />
       </div>
 
-      <div className="flex flex-col flex-1 justify-between py-1">
-        <div className="flex justify-between items-start">
-          <div>
-            <h3 className="text-sm font-medium">
+      {/* Contenido e información */}
+      <div className="flex flex-col flex-1 justify-between py-0.5">
+        <div>
+          {/* Título y Botón Eliminar */}
+          <div className="flex justify-between items-start gap-2">
+            <h3 className="text-sm font-semibold text-gray-800 line-clamp-1">
               {item.variante?.producto?.nombre ?? "Producto sin nombre"}
             </h3>
-            <div className="flex gap-2 mt-0.5">
-              {item.variante?.talle && (
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider">
-                  Talle: {item.variante.talle}
-                </span>
-              )}
-              {item.variante?.color && (
-                <span className="text-[10px] text-gray-400 uppercase tracking-wider border-l border-gray-200 pl-2">
-                  Color: {item.variante.color}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col">
-              {mostrarTachadoUnitario && (
-                <span className="text-xs text-gray-400 line-through">
-                  {formatPrice(precioBaseSinPromo)}
-                </span>
-              )}
-              <p
-                className={`text-base font-bold ${
-                  mostrarTachadoUnitario ? "text-[#A186ED]" : "text-[#4A4A4A]"
-                }`}
-              >
-                {formatPrice(precioAMostrarUnitario)}
-                <span className="text-[10px] ml-1 font-normal text-gray-400 uppercase">
-                  c/u
-                </span>
-              </p>
-            </div>
+            
+            <button
+              onClick={() => remove(item.id)}
+              disabled={processing}
+              className="text-gray-300 hover:text-red-500 transition-colors p-1 rounded-md -mr-1"
+              title="Eliminar producto"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           </div>
 
-          <button
-            onClick={() => remove(item.id)}
-            disabled={processing}
-            className="text-[11px] text-gray-400 underline hover:text-red-400 transition-colors uppercase tracking-tighter"
-          >
-            Borrar
-          </button>
-        </div>
-
-        <div className="flex justify-between items-end mt-2">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-gray-400 uppercase tracking-widest">
-              Subtotal
-            </span>
-            <span className="text-sm font-medium text-[#4A4A4A]">
-              {formatPrice(subtotalDeEstaLinea)}
-            </span>
-
-            {/* Mensaje de ahorro dinámico */}
-            {tieneAhorroEnLinea && (
-              <span className="text-[9px] text-[#A186ED] font-bold italic">
-                {ahorroTotalLinea >= precioBaseSinPromo && quantity === 1
-                  ? "¡UNIDAD DE REGALO!"
-                  : `¡Ahorraste ${formatPrice(ahorroTotalLinea)}!`}
+          {/* Variantes (Talle / Color) */}
+          <div className="flex items-center gap-2 mt-1">
+            {item.variante?.talle && (
+              <span className="inline-flex items-center text-[10px] font-semibold text-gray-500 uppercase tracking-wider bg-gray-100 px-2 py-0.5 rounded-md">
+                Talle: {item.variante.talle}
+              </span>
+            )}
+            {item.variante?.color && (
+              <span className="inline-flex items-center text-[10px] font-semibold text-gray-500 uppercase tracking-wider bg-gray-100 px-2 py-0.5 rounded-md">
+                Color: {item.variante.color}
               </span>
             )}
           </div>
 
+          {/* Precio Unitario */}
+          <div className="mt-2">
+            <p className="text-xs font-semibold text-[#A186ED]">
+              {formatPrice(precioUnitario)}{" "}
+              <span className="text-[10px] font-normal text-gray-400 uppercase">
+                c/u
+              </span>
+            </p>
+          </div>
+        </div>
+
+        {/* Subtotal y Selector de Cantidad */}
+        <div className="flex justify-between items-end mt-3 pt-2 border-t border-gray-50">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+              Subtotal
+            </span>
+            <span className="text-sm font-bold text-gray-900">
+              {formatPrice(subtotalItem)}
+            </span>
+          </div>
+
           {/* Selector de cantidad */}
-          <div className="flex items-center border border-gray-200 rounded-sm overflow-hidden h-8 bg-white">
+          <div className="flex items-center bg-gray-50 border border-gray-200/80 rounded-lg p-0.5 shadow-xs">
             <button
               onClick={() => decrement(item.id)}
               disabled={processing || quantity <= 1}
-              className="px-3 h-full text-gray-400 hover:bg-gray-50 border-r border-gray-200 disabled:opacity-30"
+              className="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-white hover:text-gray-800 rounded-md transition-all disabled:opacity-30 disabled:hover:bg-transparent"
             >
-              −
+              <Minus className="w-3 h-3" />
             </button>
-            <span className="min-w-8 text-center text-sm font-light text-gray-600">
+
+            <span className="w-8 text-center text-xs font-bold text-gray-800">
               {quantity}
             </span>
+
             <button
               onClick={() => increment(item.id)}
               disabled={processing}
-              className="px-3 h-full text-gray-400 hover:bg-gray-50 border-l border-gray-200"
+              className="w-7 h-7 flex items-center justify-center text-gray-500 hover:bg-white hover:text-gray-800 rounded-md transition-all disabled:opacity-30"
             >
-              +
+              <Plus className="w-3 h-3" />
             </button>
           </div>
         </div>

@@ -9,6 +9,7 @@ export const CartService = {
     async getCart(): Promise<CartResponse> {
         try {
             return await apiRequest<CartResponse>('/cart');
+
         } catch (err: unknown) {
             // Verificamos de forma segura si el error es un objeto con la propiedad message
             if (err instanceof Error && err.message.includes('401')) {
@@ -16,6 +17,7 @@ export const CartService = {
             }
 
             console.error('Error fetching cart:', err);
+            
             return DEFAULT_CART;
         }
     },
@@ -25,6 +27,7 @@ export const CartService = {
         return await apiRequest<CartResponse>('/cart/add', {
             method: 'POST',
             body: JSON.stringify({ productoId, quantity, varianteId }),
+            credentials: 'include', // Asegura que las cookies de sesión se envíen con la solicitud
         });
     },
 
@@ -33,6 +36,7 @@ export const CartService = {
         return await apiRequest<CartResponse>(`/cart/update/${itemId}`, {
             method: 'PATCH',
             body: JSON.stringify({ quantity }),
+            credentials: 'include', // Asegura que las cookies de sesión se envíen con la solicitud
         });
     },
 
@@ -40,6 +44,7 @@ export const CartService = {
     async removeItem(itemId: string): Promise<CartResponse> {
         return await apiRequest<CartResponse>(`/cart/remove/${itemId}`, {
             method: 'DELETE',
+            credentials: 'include', // Asegura que las cookies de sesión se envíen con la solicitud
         });
     },
 
@@ -47,6 +52,7 @@ export const CartService = {
     async clearCart(): Promise<void> {
         return await apiRequest<void>('/cart/clear', {
             method: 'DELETE',
+            credentials: 'include', // Asegura que las cookies de sesión se envíen con la solicitud
         });
     },
 
@@ -55,6 +61,7 @@ export const CartService = {
         return await apiRequest<CartResponse>('/ordenes/carrito', {
             method: 'POST',
             body: JSON.stringify({ userId, items }),
+            credentials: 'include', // Asegura que las cookies de sesión se envíen con la solicitud
         });
     },
 };

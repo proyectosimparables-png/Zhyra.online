@@ -29,6 +29,7 @@ export class ProductoService {
   }
 
   private formatearProducto(producto: any) {
+    console.log("Formateando producto:", producto);
     if (!producto) return null;
     const imagenesUrls = producto.imagenes?.map((img: any) => img.url) || [];
 
@@ -360,21 +361,55 @@ export class ProductoService {
     return this.formatearProducto(producto);
   }
 
-  // ⚡ OPTIMIZADO EXTREMO: Para armar menús traemos solo la metadata crucial de secciones. Jamás todo el catálogo.
-  async getSecciones() {
-    const secciones = await this.prisma.seccion.findMany({
-      orderBy: { nombre: 'asc' },
-      select: {
-        id: true,
-        nombre: true,
-        slug: true,
-        createdAt: true,
-        updatedAt: true
-      }
-    });
+  // ⚡le agregue que devuelva la seccion y sus correspondientes productos, para que el front pueda renderizar la seccion y sus productos en el home
+ 
 
-    return secciones.map(s => ({ ...s, productos: [] }));
-  }
+async getSecciones() {
+  const secciones = await this.prisma.seccion.findMany({
+    orderBy: { nombre: 'asc' },
+    include: {
+      categorias: {
+        where: { parentId: null },
+        orderBy: { nombre: 'asc' },
+        include: {
+          subcategorias: {
+            orderBy: { nombre: 'asc' },
+           
+          },
+          
+        },
+      },
+      // 👈 Traemos los primeros productos publicados de cada sección
+      productos: {
+        where: { producto: { published: true } },
+        take: 8, // o la cantidad que quieras mostrar por sección
+        include: {
+          producto: {
+            include: {
+              imagenes: { select: { url: true } },
+              variantes: { select: { stock: true } },
+               promociones: true,
+              
+              
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return secciones.map((s) => ({
+    ...s,
+    // Mapeamos los productos de la relación Pivote (SeccionProducto -> Producto)
+    productos: s.productos
+      .map((sp) => this.formatearProducto(sp.producto))
+      .filter(Boolean),
+  }));
+}
+
+
+
+
 
   async getTodasLasCategorias() {
     return this.prisma.categoria.findMany({

@@ -4,30 +4,23 @@ import Image from "next/image";
 
 export default function QuienesSomos() {
   return (
-    <section className="min-h-screen bg-transparent py-12 px-6 md:px-12 animate-fadeIn">
-      {/* 🩵 Encabezado */}
+    <section className="py-12 px-4">
+      {/* 💫 Encabezado */}
       <div className="text-center mb-10">
-        <h1 className="text-3xl md:text-4xl font-bold text-[var(--color-dark)]">
+        <h2 className="text-3xl md:text-4xl font-bold text-[var(--color-dark)]">
           💫 ¿Quiénes Somos?
-        </h1>
+        </h2>
       </div>
 
       {/* 💜 Contenedor principal */}
       <div className="max-w-5xl mx-auto bg-[var(--color-pastel-lilac)] border border-[var(--color-hover)] rounded-2xl shadow-lg p-8 md:p-10 flex flex-col md:flex-row items-center gap-10">
-        {/* 🖼️ Imagen principal */}
-        <div className="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-6 items-center justify-center w-full md:w-1/2">
-          <div className="relative w-60 h-60 sm:w-64 sm:h-64 rounded-xl overflow-hidden shadow-md hover:scale-[1.03] transition-transform duration-300">
+
+        {/* 🖼️ Tu foto */}
+        <div className="w-full md:w-1/2 flex justify-center">
+          <div className="relative w-64 h-80 sm:w-72 sm:h-96 rounded-2xl overflow-hidden shadow-md hover:scale-[1.03] transition-transform duration-300">
             <Image
-              src="/Caro.png" 
-              alt="Caro - Fundadora de Moonlight"
-              fill
-              className="object-cover"
-            />
-          </div>
-          <div className="relative w-60 h-60 sm:w-64 sm:h-64 rounded-xl overflow-hidden shadow-md hover:scale-[1.03] transition-transform duration-300">
-            <Image
-              src="/maru.png" 
-              alt="Maru - Fundadora de Moonlight"
+              src="/Mifoto.jpeg"
+              alt="Natalia - Creadora de Zhyra.online"
               fill
               className="object-cover"
             />
@@ -36,24 +29,61 @@ export default function QuienesSomos() {
 
         {/* 🪐 Texto */}
         <div className="w-full md:w-1/2 text-gray-800 leading-relaxed space-y-4">
+
           <p className="text-lg">
-            Hola! Somos <strong>Caro y Maru</strong>, hermanas y socias fundadoras de <strong>Moonlight</strong>. Tenemos 30 y 25 años, respectivamente, y somos el agua y el aceite.
+            Hola, soy <strong>Natalia</strong>, la persona detrás de{" "}
+            <strong>Zhyra.online</strong>. 💜
           </p>
+
           <p>
-            La Sirenita y Mulán, colores pasteles y negro, piscis y tauro, Gryffindor y Slytherin. Bueno, supongo que ya van entendiendo 😄.
+            Zhyra nació de un sueño, de esas ganas de crear algo propio y de
+            construir un espacio donde la moda, el estilo y la personalidad
+            puedan encontrarse.
           </p>
+
           <p>
-            Nos complementamos muy bien y aunque seamos polos opuestos, hay algo que amamos y tenemos en común: <strong>BTS</strong>. Somos Armys desde el 2019, cuando escuchamos por primera vez <em>Boy with Luv</em> — y el resto es historia 💜.
+            Siempre creí que la ropa es mucho más que una prenda. Es una forma
+            de expresarnos, de sentirnos cómodas con quienes somos y de mostrar
+            un poquito de nuestra personalidad sin necesidad de decir una palabra.
           </p>
+
           <p>
-            En el 2021 comenzamos a soñar nuestro emprendimiento. Queríamos disfrutar de lo que hacíamos, y qué mejor que hacerlo juntas, creando algo que amamos.
+            Por eso nació <strong>Zhyra</strong>: una tienda pensada para
+            mujeres que disfrutan de la moda, que buscan sentirse lindas,
+            seguras y auténticas, y que quieren encontrar prendas que puedan
+            hacer parte de su propio estilo. ✨
           </p>
+
           <p>
-            En <strong>Moonlight</strong> vas a encontrar prendas sin género, de calidad premium y una amplia variedad de talles. Cada diseño busca acercarte un poquito más a tu artista favorito, y está hecho con mucho amor.
+            En Zhyra vas a encontrar prendas seleccionadas con mucho amor,
+            pensando en las tendencias actuales pero sin perder de vista algo
+            que para mí es fundamental:{" "}
+            <strong>que te sientas vos misma cuando las uses.</strong>
           </p>
-          <p className="font-medium text-[var(--color-dark)]">
-            💫 ¡Te invitamos a formar parte de esta experiencia!
+
+          <p>
+            Quiero que cada vez que elijas algo de Zhyra sientas que estás
+            eligiendo mucho más que una prenda. Que sea ese pequeño detalle que
+            te haga mirarte al espejo y pensar:{" "}
+            <strong>“Esto es muy yo”.</strong> 🤍
           </p>
+
+          <p>
+            Este proyecto es una parte de mí, y cada detalle de Zhyra está hecho
+            con ilusión, dedicación y muchas ganas de crecer.
+          </p>
+
+          <p>
+            Gracias por estar acá, por elegir un emprendimiento y por ser parte
+            de este comienzo. 🫶🏻
+          </p>
+
+          <p className="font-medium text-[var(--color-dark)] text-lg">
+            💜 Bienvenida a Zhyra.online.
+            <br />
+            Tu estilo, tu esencia, tu Zhyra.
+          </p>
+
         </div>
       </div>
 
@@ -69,6 +99,7 @@ export default function QuienesSomos() {
             transform: translateY(0);
           }
         }
+
         .animate-fadeIn {
           animation: fadeIn 0.6s ease-in-out;
         }

@@ -20,9 +20,9 @@ export const AddedToCartModal = () => {
   if (!lastAddedItem) return null;
 
   // Extraemos los datos de forma segura
-  const nombreProducto = lastAddedItem.producto?.nombre || "Producto";
+  const nombreProducto = lastAddedItem.variante.producto.nombre || "Producto";
   const imagenProducto =
-    lastAddedItem.producto?.imagenUrl || "/placeholder.png";
+    lastAddedItem.variante.producto.imagenUrl || "/placeholder.png";
   const cantidad = lastAddedItem.quantity || 1;
 
   return (

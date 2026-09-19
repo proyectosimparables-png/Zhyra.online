@@ -22,7 +22,7 @@ export class ConfiguracionTiendaService implements OnModuleInit {
         data: {
           mantenimientoActivo: false,
           mantenimientoMensaje: 'Estamos renovando la tienda y está quedando increíble. ¡Volvé en unos días!',
-          mantenimientoCodigo: 'MOONLIGHT_VIP',
+          mantenimientoCodigo: 'ZHYRA.ONLINE_VIP',
         },
       });
       console.log('✅ Configuración de mantenimiento inicial creada.');

@@ -1,5 +1,7 @@
 // app/admin/cupones/page.tsx
-import ListaCupones from "@/componentes/admin/ListaCupones";
+
+import ListaCupones from "@/components/admin/Coupon-List";
+
 
 export default function CuponesListaPage() {
   return (

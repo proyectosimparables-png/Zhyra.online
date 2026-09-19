@@ -7,7 +7,7 @@ import { CartItemInput, ShippingRateResult } from "@/types/shipping";
  */
 export async function getShippingRates(cp: string, cartItems: CartItemInput[] = []): Promise<ShippingRateResult[]> {
     // Log para verificar qué contiene cartItems antes de mapear
-    console.log("Cart items antes de mapear:", cartItems);
+   
 
     // Verificar si cartItems tiene productos válidos
     if (cartItems.length === 0) {
@@ -20,7 +20,7 @@ export async function getShippingRates(cp: string, cartItems: CartItemInput[] = 
         cantidad: item.quantity
     }));
 
-    console.log("Items corregidos enviados al backend:", items);
+   
 
     // Verificar si algún item tiene un valor inválido o nulo para productoId o cantidad
     items.forEach((item, index) => {

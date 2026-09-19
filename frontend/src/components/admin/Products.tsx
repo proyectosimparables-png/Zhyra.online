@@ -20,12 +20,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 import { ProductoBackend, CategoriaType } from "@/types/products";
-import EditarProductoForm from "./EditarProductoForm";
+
 import ConfirmDeleteModal from "../shared/Confirm-Delete-Modal";
 import {
   deleteProducto,
   getProductosAdmin,
 } from "@/services/admin/admin-products-actions";
+import EditarProductoForm from "./Edit-Product-Form";
 
 // Definimos una interfaz limpia para el mapeo seguro de secciones en la UI
 interface SeccionRelacion {

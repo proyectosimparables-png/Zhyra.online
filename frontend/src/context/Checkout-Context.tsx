@@ -19,7 +19,6 @@ export type MetodoPago =
 
 export type DeliveredType = "HOME_DELIVERY" | "PICKUP";
 
-// Definimos la interfaz para el cupón
 export interface CuponAplicado {
   id: string;
   codigo: string;
@@ -45,7 +44,7 @@ export interface CheckoutFormData {
   deliveredType: DeliveredType;
   metodoPago: MetodoPago;
   notasEntrega: string;
-  cuponCodigo?: string; // 👈 Agregamos esto para mandarlo luego al backend
+  cuponCodigo?: string;
 }
 
 interface CheckoutContextType {
@@ -55,85 +54,70 @@ interface CheckoutContextType {
   nextStep: () => void;
   prevStep: () => void;
   updateFormData: (data: Partial<CheckoutFormData>) => void;
+  resetFormData: () => void;
   isStep1Valid: boolean;
   subtotal: number;
   descuento: number;
+  descuentoTransferencia: number; // Exportamos el descuento para renderizarlo si hace falta
   totalFinal: number;
-  // --- NUEVOS CAMPOS PARA EL CUPÓN ---
   cuponAplicado: CuponAplicado | null;
   setCuponAplicado: (cupon: CuponAplicado | null) => void;
 }
 
 const CheckoutContext = createContext<CheckoutContextType | undefined>(
-  undefined,
+  undefined
 );
-
-const CHECKOUT_STORAGE_KEY = "moonlight_checkout_form";
 
 export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
   const searchParams = useSearchParams();
-  const { subtotal, descuentoTotal, total } = useCart();
+  const { subtotal, descuentoTotal } = useCart();
 
-  // Estado para el cupón aplicado
   const [cuponAplicado, setCuponAplicado] = useState<CuponAplicado | null>(
-    null,
+    null
   );
 
-  const [formData, setFormData] = useState<CheckoutFormData>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(CHECKOUT_STORAGE_KEY);
-      if (saved) {
-        try {
-          return JSON.parse(saved) as CheckoutFormData;
-        } catch (error) {
-          console.error("Error parsing checkout data", error);
-        }
-      }
-    }
+  const initialValues: CheckoutFormData = {
+    email: "",
+    nombre: "",
+    apellido: "",
+    dni: "",
+    telefono: "",
+    calle: "",
+    numero: "",
+    piso: "",
+    depto: "",
+    ciudad: "",
+    provincia: "",
+    codigoPostal: "",
+    notasEntrega: "",
+    metodoEnvio: searchParams.get("shippingName") || "A convenir",
+    costoEnvio: Number(searchParams.get("shippingCost")) || 0,
+    deliveredType:
+      searchParams.get("shippingType") === "HOME_DELIVERY" ||
+      searchParams.get("shippingType") === "PICKUP"
+        ? (searchParams.get("shippingType") as DeliveredType)
+        : "PICKUP",
+    metodoPago: "", // Arranca vacío -> SIN DESCUENTO
+    cuponCodigo: "",
+  };
 
-    const rawType = searchParams.get("shippingType");
-    const validDeliveredType: DeliveredType =
-      rawType === "HOME_DELIVERY" || rawType === "PICKUP" ? rawType : "PICKUP";
-
-    return {
-      email: "",
-      nombre: "",
-      apellido: "",
-      dni: "",
-      telefono: "",
-      calle: "",
-      numero: "",
-      piso: "",
-      depto: "",
-      ciudad: "",
-      provincia: "",
-      codigoPostal: "",
-      notasEntrega: "",
-      metodoEnvio: searchParams.get("shippingName") || "A convenir",
-      costoEnvio: Number(searchParams.get("shippingCost")) || 0,
-      deliveredType: validDeliveredType,
-      metodoPago: "",
-      cuponCodigo: "",
-    };
-  });
-
-  // Sincronizar el código del cupón en formData cuando se aplica uno
-  useEffect(() => {
-    updateFormData({ cuponCodigo: cuponAplicado?.codigo || "" });
-  }, [cuponAplicado]);
-
-  useEffect(() => {
-    localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(formData));
-  }, [formData]);
-
-  const nextStep = () => setStep(2);
-  const prevStep = () => setStep(1);
+  const [formData, setFormData] = useState<CheckoutFormData>(initialValues);
 
   const updateFormData = (data: Partial<CheckoutFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
   };
 
+  const resetFormData = () => {
+    setFormData(initialValues);
+  };
+
+  useEffect(() => {
+    updateFormData({ cuponCodigo: cuponAplicado?.codigo || "" });
+  }, [cuponAplicado]);
+
   const [step, setStep] = useState(1);
+  const nextStep = () => setStep(2);
+  const prevStep = () => setStep(1);
 
   const isStep1Valid =
     formData.nombre.trim() !== "" &&
@@ -142,6 +126,37 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
     formData.calle.trim() !== "" &&
     formData.provincia !== "" &&
     formData.metodoEnvio !== "";
+
+  // --- CÁLCULOS DINÁMICOS Y RIGUROSOS ---
+  const subtotalBase = subtotal ?? 0;
+  const descBase = descuentoTotal ?? 0;
+
+  // 1. Cálculo de Cupón
+  let montoDescuentoCupon = 0;
+  if (cuponAplicado) {
+    if (cuponAplicado.tipo === "PORCENTAJE") {
+      montoDescuentoCupon = subtotalBase * (cuponAplicado.valor / 100);
+    } else if (cuponAplicado.tipo === "MONTO_FIJO") {
+      montoDescuentoCupon = cuponAplicado.valor;
+    }
+  }
+
+  const baseParaDescuentoPago = Math.max(
+    0,
+    subtotalBase - descBase - montoDescuentoCupon
+  );
+
+  // 2. Descuento Transferencia (SOLO SI EL USUARIO ELIGIÓ "TRANSFERENCIA")
+  const esTransferencia = formData.metodoPago === "TRANSFERENCIA";
+  const descuentoTransferencia = esTransferencia
+    ? baseParaDescuentoPago * 0.1
+    : 0;
+
+  // 3. Total Final recalculado
+  const totalFinal = Math.max(
+    0,
+    baseParaDescuentoPago - descuentoTransferencia + (formData.costoEnvio || 0)
+  );
 
   return (
     <CheckoutContext.Provider
@@ -152,11 +167,12 @@ export const CheckoutProvider = ({ children }: { children: ReactNode }) => {
         nextStep,
         prevStep,
         updateFormData,
+        resetFormData,
         isStep1Valid,
-        subtotal: subtotal ?? 0,
-        descuento: descuentoTotal ?? 0,
-        totalFinal: total ?? 0,
-        // Exponemos el cupón
+        subtotal: subtotalBase,
+        descuento: descBase + montoDescuentoCupon,
+        descuentoTransferencia,
+        totalFinal,
         cuponAplicado,
         setCuponAplicado,
       }}

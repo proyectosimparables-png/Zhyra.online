@@ -28,6 +28,9 @@ export interface PuntoEntrega {
     direccion: string;
     localidad: string;
     provincia: string;
+    disponibilidad: string;
+    costo: number;
+    esDomicilio: boolean;
     indicaciones?: string | null;
     activo: boolean;
 }
@@ -49,7 +52,10 @@ export interface CartItemInput {
 // ==========================================================================================
 
 export interface ShippingRateResult {
-    servicio: string;        // Ej: "Clásico", "Expreso", "Retiro en Sucursal"
-    costo: number;           // Ej: 4500
-    plazoEntrega: string;    // Ej: "3 a 5 días hábiles"
+   nombre: string;
+  precio: number;
+  productType: string;
+  deliveredType: "D" | "S";
+  plazoMin: number;
+  plazoMax: number;    // Ej: "3 a 5 días hábiles"
 }

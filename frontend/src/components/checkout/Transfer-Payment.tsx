@@ -1,4 +1,4 @@
-"use client";
+/*"use client";
 
 import { useState } from "react";
 import { Check, Copy, Hourglass, ArrowLeft } from "lucide-react";
@@ -45,7 +45,7 @@ export default function OrderSuccessPage({ params }: Props) {
   return (
     <main className="min-h-screen bg-[#fcfaf2] py-12 px-4">
       <div className="max-w-2xl mx-auto space-y-8">
-        {/* Encabezado */}
+        
         <header className="space-y-2">
           <p className="text-sm font-medium text-gray-500 uppercase tracking-widest">
             Orden: #{params.id}
@@ -57,7 +57,6 @@ export default function OrderSuccessPage({ params }: Props) {
           <p className="text-lg">¡Hola! 💜</p>
         </header>
 
-        {/* Cuerpo del mensaje */}
         <section className="space-y-6 text-gray-700 leading-relaxed">
           <p>
             Gracias por tu compra y por confiar en nosotras! 🌙✨
@@ -66,7 +65,7 @@ export default function OrderSuccessPage({ params }: Props) {
             datos:
           </p>
 
-          {/* Card de Datos Bancarios */}
+      
           <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm space-y-3">
             <div className="flex justify-between items-center group">
               <p className="font-mono text-sm break-all">
@@ -116,7 +115,7 @@ export default function OrderSuccessPage({ params }: Props) {
           </div>
         </section>
 
-        {/* Acciones Finales */}
+    
         <footer className="flex flex-col gap-4 pt-6 border-t border-purple-100">
           <button
             onClick={() => handleCopy(BANK_DETAILS.cvu)}
@@ -137,4 +136,4 @@ export default function OrderSuccessPage({ params }: Props) {
       </div>
     </main>
   );
-}
+}*/

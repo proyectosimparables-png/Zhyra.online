@@ -3,5 +3,5 @@ import { IsString } from 'class-validator';
 
 export class CreateSeccionDto {
   @IsString()
-  nombre: string;
+  nombre!: string;
 }

@@ -14,6 +14,7 @@ export async function createOrder(orderPayload: OrderPayload): Promise<OrderResp
     return await apiRequest<OrderResponse>("/ordenes", {
         method: "POST",
         body: JSON.stringify(orderPayload),
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
@@ -23,6 +24,7 @@ export async function createOrder(orderPayload: OrderPayload): Promise<OrderResp
 export async function createMPPreference(orderId: string): Promise<MPPreferenceResponse> {
     return await apiRequest<MPPreferenceResponse>(`/payments/create-preference/${orderId}`, {
         method: "POST",
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }
 
@@ -32,5 +34,6 @@ export async function createMPPreference(orderId: string): Promise<MPPreferenceR
 export async function createGoCuotasPayment(orderId: string): Promise<GoCuotasResponse> {
     return await apiRequest<GoCuotasResponse>(`/payments/create-gocuotas/${orderId}`, {
         method: "POST",
+        credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
 }

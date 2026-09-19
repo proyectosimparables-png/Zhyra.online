@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
 
     try {
         // 2. Consultamos la configuración dinámica al backend
-        const configRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/configuracion-tienda/publico`, {
+        const configRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/publico`, {
             next: { revalidate: 60 }
         });
 

@@ -17,6 +17,7 @@ export async function createComentario<T>(contenido: string, nombre?: string): P
     return await apiRequest<T>('/comentarios', {
       method: "POST",
       body: JSON.stringify({ contenido, nombre }), // Ya mandamos el alias al back
+      credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
   } catch (error) {
     console.error("Error creando comentario:", error);
@@ -28,6 +29,7 @@ export const deleteComentario = async (id: string | number): Promise<void> => {
   try {
     return await apiRequest(`/comentarios/${id}`, {
       method: "DELETE",
+      credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
   } catch (error) {
     console.error("Error eliminando comentario:", error);

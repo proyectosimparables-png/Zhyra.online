@@ -8,7 +8,9 @@ export default function SkyBackground() {
 
   useEffect(() => {
     const hour = new Date().getHours();
-    console.log("Hora actual:", hour, isNight ? "(Noche)" : "(Día)");
+    if (hour >= 18 || hour < 6) {
+      document.body.classList.add("night-mode");
+    }
   }, [isNight]);
 
   return (

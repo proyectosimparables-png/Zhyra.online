@@ -7,7 +7,7 @@ import {
   removeImagenProducto,
 } from "@/services/admin/admin-products-actions";
 import toast from "react-hot-toast";
-import EditorDescripcion from "./EditorDescripcion";
+
 import {
   XMarkIcon,
   CameraIcon,
@@ -18,6 +18,7 @@ import {
 import { CategoriaTreeSelector } from "../products/Categoria-Tree-Selector";
 import Image from "next/image";
 import { Loader2 } from "lucide-react";
+import EditorDescripcion from "./Description-Editor";
 
 // --- INTERFACES DE TIPADO ---
 interface VarianteEstado {

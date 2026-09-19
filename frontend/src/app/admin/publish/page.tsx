@@ -1,4 +1,5 @@
-import FormProducto from "@/componentes/admin/FormProducto";
+import FormProducto from "@/components/admin/Form-Product";
+
 
 export default function PublicarPage() {
   return (

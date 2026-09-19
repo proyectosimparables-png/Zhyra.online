@@ -1,7 +1,7 @@
 // src/lib/apiClient.ts
 import { getVipCode } from "@/utils/utils";
 
-const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://api.zhyra.online"; // Valor por defecto si la variable de entorno no está definida
 const API_BASE_URL = RAW_API_URL.endsWith("/") ? RAW_API_URL.slice(0, -1) : RAW_API_URL;
 
 let mantenimientoActivoEnBaseDeDatos = false;

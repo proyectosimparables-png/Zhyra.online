@@ -1,4 +1,5 @@
-import ComentariosAdmin from "@/componentes/admin/Comentarios";
+import ComentariosAdmin from "@/components/admin/Comments";
+
 
 const ComentariosPage = () => {
   return <ComentariosAdmin />;

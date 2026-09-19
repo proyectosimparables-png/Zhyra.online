@@ -16,7 +16,11 @@ export default function UltimosComentarios() {
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
 
   useEffect(() => {
-    getComentarios(5).then(setComentarios);
+    getComentarios(5).then((data) => {
+      if (Array.isArray(data)) {
+        setComentarios(data as Comentario[]);
+      }
+    });
   }, []);
 
   return (
@@ -35,7 +39,7 @@ export default function UltimosComentarios() {
       ) : (
         <div
           className="
-            flex gap-4 sm:gap-6 overflow-x-auto pb-4
+            flex gap-6 overflow-x-auto pb-6 pt-2 px-2
             scrollbar-thin scrollbar-thumb-[var(--color-lilac)]
             scrollbar-track-[var(--color-soft-beige)]
             snap-x snap-mandatory
@@ -45,27 +49,36 @@ export default function UltimosComentarios() {
             <div
               key={c.id}
               className="
-                snap-center flex-shrink-0
-                bg-[var(--color-pastel-lilac)]
-                rounded-xl p-5 shadow-sm border border-[var(--color-hover)]
-                hover:shadow-lg hover:scale-[1.02] transition-all duration-300
-                min-w-[85%] sm:min-w-[320px] md:min-w-[280px]
+                relative snap-center flex-shrink-0 flex flex-col justify-between
+                bg-white/90 backdrop-blur-sm
+                rounded-[2rem] p-6 shadow-sm border border-[var(--color-lilac)]/30
+                hover:shadow-md hover:scale-[1.02] transition-all duration-300
+                w-[280px] sm:w-[320px] min-h-[180px]
               "
             >
-              {/* 👩 Nombre */}
-              <p className="font-semibold text-[var(--color-dark)] mb-2 text-sm sm:text-base">
-                {c.user.name}
-              </p>
+              {/* 💜 Corazón en la esquina superior derecha */}
+              <div className="absolute top-5 right-5 text-[var(--color-hover)] text-lg  text-purple-900">
+                🤍
+              </div>
 
-              {/* 💬 Comentario */}
-              <p className="text-gray-800 italic text-sm sm:text-base mb-3 line-clamp-5">
-                “{c.contenido}”
-              </p>
+              {/* ⭐ Estrellitas */}
+              <div>
+                <div className="flex gap-1 text-[var(--color-hover)] text-sm mb-4  text-purple-900">
+                  {"★".repeat(5)}
+                </div>
 
-              {/* 📅 Fecha */}
-              <p className="text-xs text-gray-500 text-right">
-                {new Date(c.createdAt).toLocaleDateString("es-AR")}
-              </p>
+                {/* 💬 Comentario */}
+                <p className="text-gray-700 italic font-medium text-base sm:text-lg leading-relaxed line-clamp-3">
+                  “{c.contenido}”
+                </p>
+              </div>
+
+              {/* 👩 Nombre abajo en mayúsculas */}
+              <div className="mt-4 pt-2">
+                <p className="font-bold text-xs sm:text-sm tracking-wider uppercase  text-purple-900 text-[var(--color-hover)]">
+                  {c.user.name}
+                </p>
+              </div>
             </div>
           ))}
         </div>

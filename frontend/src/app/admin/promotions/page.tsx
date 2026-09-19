@@ -1,7 +1,8 @@
 // src/app/admin/promociones/page.tsx
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { ListaPromociones } from "@/componentes/admin/ListaPromociones";
+import { ListaPromociones } from "@/components/admin/Promotion-List";
+
 
 export default function PromocionesPage() {
   return (
@@ -17,7 +18,7 @@ export default function PromocionesPage() {
         </div>
 
         <Link
-          href="/admin/promociones/formulario"
+          href="/admin/promotions/formulario"
           className="bg-purple-600 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-purple-700 transition-all shadow-lg shadow-purple-100"
         >
           <Plus size={18} />

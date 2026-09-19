@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { ChevronDown, ArrowLeft, Menu } from "lucide-react";
+import { ChevronDown, ArrowLeft, Menu, Loader2 } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -15,7 +15,10 @@ import {
 import { AuthButton } from "./Auth-Button";
 import { CartButton } from "./Cart-Button";
 import { SearchInput } from "../search/Search-Input";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+
+import { SeccionType, CategoriaType } from "@/types/products";
+import { getSecciones } from "@/services/products-service";
 
 interface MenuItem {
   label: string;
@@ -23,167 +26,21 @@ interface MenuItem {
   sub?: MenuItem[];
 }
 
-const MENU: MenuItem[] = [
-  {
-    label: "Productos",
-    sub: [
-      { label: "Ver todos los productos", path: "/productos" },
-      {
-        label: "Indumentaria",
-        sub: [
-          {
-            label: "Remeras",
-            sub: [
-              {
-                label: "BTS",
-                sub: [
-                  {
-                    label: "Ver todo BTS",
-                    path: "/productos/indumentaria/remeras/bts",
-                  },
-                  {
-                    label: "RM",
-                    path: "/productos/indumentaria/remeras/bts/rm",
-                  },
-                  {
-                    label: "Jin",
-                    path: "/productos/indumentaria/remeras/bts/jin",
-                  },
-                  {
-                    label: "Suga",
-                    path: "/productos/indumentaria/remeras/bts/suga",
-                  },
-                  {
-                    label: "J-Hope",
-                    path: "/productos/indumentaria/remeras/bts/j-hope",
-                  },
-                  {
-                    label: "Jimin",
-                    path: "/productos/indumentaria/remeras/bts/jimin",
-                  },
-                  {
-                    label: "Taehyung",
-                    path: "/productos/indumentaria/remeras/bts/taehyung",
-                  },
-                  {
-                    label: "Jungkook",
-                    path: "/productos/indumentaria/remeras/bts/jungkook",
-                  },
-                  {
-                    label: "Rap Line",
-                    path: "/productos/indumentaria/remeras/bts/rap-line",
-                  },
-                  {
-                    label: "Vocal Line",
-                    path: "/productos/indumentaria/remeras/bts/vocal-line",
-                  },
-                ],
-              },
-              {
-                label: "Stray Kids",
-                path: "/productos/indumentaria/remeras/stray-kids",
-              },
-              {
-                label: "The Rose",
-                path: "/productos/indumentaria/remeras/the-rose",
-              },
-              {
-                label: "Jonas Brothers",
-                path: "/productos/indumentaria/remeras/jonas-brothers",
-              },
-              {
-                label: "New Jeans",
-                path: "/productos/indumentaria/remeras/new-jeans",
-              },
-              {
-                label: "Ver todas las Remeras",
-                path: "/productos/indumentaria/remeras",
-              },
-            ],
-          },
-          {
-            label: "Abrigos",
-            sub: [
-              {
-                label: "Hoodies",
-                sub: [
-                  {
-                    label: "BTS",
-                    path: "/productos/indumentaria/abrigos/hoodies/bts",
-                  },
-                  {
-                    label: "Stray Kids",
-                    path: "/productos/indumentaria/abrigos/hoodies/stray-kids",
-                  },
-                  {
-                    label: "Ver todos los Hoodies",
-                    path: "/productos/indumentaria/abrigos/hoodies",
-                  },
-                ],
-              },
-              {
-                label: "Buzos",
-                sub: [
-                  {
-                    label: "BTS",
-                    path: "/productos/indumentaria/abrigos/buzos/bts",
-                  },
-                  {
-                    label: "Stray Kids",
-                    path: "/productos/indumentaria/abrigos/buzos/stray-kids",
-                  },
-                  {
-                    label: "Ver todos los Buzos",
-                    path: "/productos/indumentaria/abrigos/buzos",
-                  },
-                ],
-              },
-              {
-                label: "Ver todos los Abrigos",
-                path: "/productos/indumentaria/abrigos",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        label: "Bangtan Limited Edition",
-        sub: [
-          {
-            label: "Accesorios",
-            path: "/productos/bangtan-limited-edition/accesorios",
-          },
-          {
-            label: "Bangtan Bags",
-            path: "/productos/bangtan-limited-edition/bangtan-bags",
-          },
-          {
-            label: "Bangtan Home",
-            path: "/productos/bangtan-limited-edition/bangtan-home",
-          },
-          {
-            label: "Ver todo Limited Edition",
-            path: "/productos/bangtan-limited-edition",
-          },
-        ],
-      },
-      { label: "Gift Cards", path: "/productos/gift-cards" },
-    ],
-  },
-  {
-    label: "¿Cómo comprar?",
-    sub: [
-      { label: "Guía de Compra", path: "/how-to-buy" },
-      { label: "Políticas de Compra", path: "/privacy-policy" },
-      { label: "Guía de Talles", path: "/size-guide" },
-      { label: "Mayoristas", path: "/wholesale" },
-      { label: "Preguntas Frecuentes", path: "/faq" },
-    ],
-  },
+// Links estáticos de la aplicación (se mantienen intactos)
+const STATIC_BUY_HELP: MenuItem = {
+  label: "¿Cómo comprar?",
+  sub: [
+    { label: "Guía de Compra", path: "/how-to-buy" },
+    { label: "Políticas de Compra", path: "/privacy-policy" },
+    { label: "Preguntas Frecuentes", path: "/faq" },
+  ],
+};
+
+const DIRECT_LINKS: MenuItem[] = [
   { label: "¿Quiénes Somos?", path: "/about-us" },
-  { label: "Experiencia Moonlight", path: "/comment" },
-  { label: "Army Club", path: "/army-club" },
-  { label: "Calendario Lunar", path: "/calendario-lunar" },
+  { label: "Dejanos tu experiencia", path: "/comment" },
+  { label: "Z-Club ⭐", path: "/z-club" },
+
 ];
 
 export const NavbarMobile = () => {
@@ -191,19 +48,102 @@ export const NavbarMobile = () => {
   const pathname = usePathname();
 
   const [open, setOpen] = useState(false);
-  const [menuStack, setMenuStack] = useState<MenuItem[][]>([MENU]);
-  const [mounted, setMounted] = useState(false); // ✅ ESTADO PARA HIDRATACIÓN
+  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true); // ✅ Activa el renderizado en cliente
+  // Estados para datos dinámicos
+  const [secciones, setSecciones] = useState<SeccionType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Convierte recursivamente Categorías y Subcategorías del backend a MenuItem[]
+  const mapCategoriaToMenuItem = useCallback((cat: CategoriaType, parentPath: string): MenuItem => {
+    const currentPath = `${parentPath}/${cat.slug}`;
+    const hasSub = cat.subcategorias && cat.subcategorias.length > 0;
+
+    if (!hasSub) {
+      return {
+        label: cat.nombre,
+        path: currentPath,
+      };
+    }
+
+    return {
+      label: cat.nombre,
+      sub: [
+        { label: `Ver todo en ${cat.nombre}`, path: currentPath },
+        ...cat.subcategorias!.map((sub) => mapCategoriaToMenuItem(sub, currentPath)),
+      ],
+    };
   }, []);
 
+  // Construye la estructura dinámica completa del menú
+  const fullMenu = useMemo<MenuItem[]>(() => {
+    const productosSubMenu: MenuItem[] = [
+      { label: "Ver todos los productos", path: "/productos" },
+    ];
+
+    secciones.forEach((sec) => {
+      const secPath = `/${sec.slug}`;
+      const hasCats = sec.categorias && sec.categorias.length > 0;
+
+      if (!hasCats) {
+        productosSubMenu.push({
+          label: sec.nombre,
+          path: secPath,
+        });
+      } else {
+        productosSubMenu.push({
+          label: sec.nombre,
+          sub: [
+            { label: `Ver todo en ${sec.nombre}`, path: secPath },
+            ...sec.categorias!.map((cat) => mapCategoriaToMenuItem(cat, secPath)),
+          ],
+        });
+      }
+    });
+
+    return [
+      {
+        label: "Productos",
+        sub: productosSubMenu,
+      },
+      STATIC_BUY_HELP,
+      ...DIRECT_LINKS,
+    ];
+  }, [secciones, mapCategoriaToMenuItem]);
+
+  // Manejo de la pila de menú (Navegación tipo Drill-Down)
+  const [menuStack, setMenuStack] = useState<MenuItem[][]>([fullMenu]);
+
+  useEffect(() => {
+    setMounted(true);
+
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const data = await getSecciones();
+        setSecciones(data || []);
+      } catch (error) {
+        console.error("Error al cargar secciones en NavbarMobile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // Sincroniza la pila del menú cuando los datos dinámicos terminan de cargar
+  useEffect(() => {
+    setMenuStack([fullMenu]);
+  }, [fullMenu]);
+
+  // Al cerrar el Sheet, resetea la pila al menú principal después de la animación
   useEffect(() => {
     if (!open) {
-      const timer = setTimeout(() => setMenuStack([MENU]), 300);
+      const timer = setTimeout(() => setMenuStack([fullMenu]), 300);
       return () => clearTimeout(timer);
     }
-  }, [open]);
+  }, [open, fullMenu]);
 
   const currentMenu = menuStack[menuStack.length - 1];
 
@@ -222,8 +162,7 @@ export const NavbarMobile = () => {
     }
   };
 
-  // ✅ PREVENCIÓN DE ERROR DE HIDRATACIÓN:
-  // Si no está montado, renderizamos la estructura básica sin Sheet para que coincida con el servidor.
+  // ✅ PREVENCIÓN DE ERROR DE HIDRATACIÓN (Coincide con el HTML inicial de servidor)
   if (!mounted) {
     return (
       <div className="md:hidden">
@@ -231,15 +170,18 @@ export const NavbarMobile = () => {
           <button aria-label="Abrir menú" className="p-1 outline-none">
             <Menu className="h-6 w-6 text-[#7b5ca2]" />
           </button>
-          <div className="flex-1 flex justify-center">
-            <Image
-              src="/moonlight.png"
-              alt="Moonlight Logo"
-              width={120}
-              height={30}
-              priority
-            />
-          </div>
+          <Link href="/">
+                <div className="h-20 w-20 md:h-24 md:w-24 rounded-full overflow-hidden border-2 border-purple-100 shadow-lg cursor-pointer hover:scale-105 transition-transform duration-300 bg-black flex items-center justify-center p-1">
+                  <Image
+                    src="/logozhyra.jpeg"
+                    alt="Zhyra Logo"
+                    width={100}
+                    height={100}
+                    priority
+                    className="object-cover rounded-full"
+                  />
+                </div>
+              </Link>
           <div className="flex items-center gap-2">
             <AuthButton />
             <CartButton />
@@ -283,44 +225,51 @@ export const NavbarMobile = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              <ul className="divide-y divide-gray-50">
-                {currentMenu.map((item) => {
-                  const isActive = item.path === pathname;
+              {loading && menuStack.length === 1 ? (
+                <div className="flex items-center justify-center p-8 text-[#7b5ca2]">
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  <span>Cargando menú...</span>
+                </div>
+              ) : (
+                <ul className="divide-y divide-gray-50">
+                  {currentMenu.map((item, index) => {
+                    const isActive = item.path === pathname;
 
-                  return (
-                    <li key={item.label}>
-                      {!item.sub && item.path ? (
-                        <Link
-                          href={item.path}
-                          onClick={() => setOpen(false)}
-                          className={`flex items-center justify-between px-5 py-4 text-[#7b5ca2] transition-colors
-                            ${isActive ? "bg-[#f3eefb] font-bold" : "active:bg-[#f3eefb]"}`}
-                        >
-                          <span className="text-[16px]">{item.label}</span>
-                        </Link>
-                      ) : (
-                        <button
-                          onClick={() => handleItemClick(item)}
-                          className="w-full flex items-center justify-between px-5 py-4 text-[#7b5ca2] active:bg-[#f3eefb] transition-colors outline-none"
-                        >
-                          <span className="text-[16px]">{item.label}</span>
-                          {item.sub && (
-                            <ChevronDown className="h-4 w-4 -rotate-90 opacity-50" />
-                          )}
-                        </button>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
+                    return (
+                      <li key={`${item.label}-${index}`}>
+                        {!item.sub && item.path ? (
+                          <Link
+                            href={item.path}
+                            onClick={() => setOpen(false)}
+                            className={`flex items-center justify-between px-5 py-4 text-[#7b5ca2] transition-colors
+                              ${isActive ? "bg-[#f3eefb] font-bold" : "active:bg-[#f3eefb]"}`}
+                          >
+                            <span className="text-[16px]">{item.label}</span>
+                          </Link>
+                        ) : (
+                          <button
+                            onClick={() => handleItemClick(item)}
+                            className="w-full flex items-center justify-between px-5 py-4 text-[#7b5ca2] active:bg-[#f3eefb] transition-colors outline-none"
+                          >
+                            <span className="text-[16px]">{item.label}</span>
+                            {item.sub && (
+                              <ChevronDown className="h-4 w-4 -rotate-90 opacity-50" />
+                            )}
+                          </button>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
           </SheetContent>
         </Sheet>
 
         <Link href="/" className="flex-1 flex justify-center">
           <Image
-            src="/moonlight.png"
-            alt="Moonlight Logo"
+            src="/logozhyra.jpeg"
+            alt="Zhyra Logo"
             width={120}
             height={30}
             priority

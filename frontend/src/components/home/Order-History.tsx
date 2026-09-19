@@ -1,71 +1,61 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getUserHistorial } from "@/services/order-history-service";
+import { useEffect, useState, useCallback } from "react";
+import { getUserHistorial, cancelarOrdenCliente } from "@/services/order-history-service";
 import { HistorialResponse, HistorialOrden } from "@/types/orders";
+import { ShoppingCart, AlertCircle, XCircle } from "lucide-react";
 import Image from "next/image";
-
-// 🔹 Configuración de colores y etiquetas por estado
-const ESTADOS_CONFIG: Record<string, { label: string; color: string }> = {
-  PAGADO: {
-    label: "Pagado",
-    color: "bg-green-100 text-green-700 border-green-200",
-  },
-  ENTREGADO: {
-    label: "Entregado",
-    color: "bg-blue-100 text-blue-700 border-blue-200",
-  },
-  PENDIENTE: {
-    label: "Pendiente de Pago",
-    color: "bg-orange-100 text-orange-700 border-orange-200",
-  },
-  ENVIADO: {
-    label: "En Camino",
-    color: "bg-indigo-100 text-indigo-700 border-indigo-200",
-  },
-  EMPAQUETADO: {
-    label: "En Preparación",
-    color: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  },
-  REEMBOLSADO: {
-    label: "Reembolsado",
-    color: "bg-gray-100 text-gray-700 border-gray-200",
-  },
-  CANCELADO: {
-    label: "Cancelado",
-    color: "bg-red-100 text-red-700 border-red-200",
-  },
-  CARRITO: {
-    label: "En Carrito",
-    color: "bg-purple-100 text-purple-700 border-purple-200",
-  },
-};
 
 export default function HistorialCompras() {
   const [historial, setHistorial] = useState<HistorialOrden[]>([]);
-  const [total, setTotal] = useState<number>(0);
   const [cantidad, setCantidad] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const fetchHistorial = async () => {
-      try {
-        setLoading(true);
-        const data = await getUserHistorial<HistorialResponse>();
+  // Estados para el Modal de Cancelación
+  const [ordenACancelar, setOrdenACancelar] = useState<HistorialOrden | null>(null);
+  const [motivoCancelacion, setMotivoCancelacion] = useState<string>("");
+  const [cancelando, setCancelando] = useState<boolean>(false);
 
-        if (data) {
-          setHistorial(data.historial || []);
-          setTotal(data.total || 0);
-          setCantidad(data.cantidad || 0);
-        }
-      } catch (err) {
-        console.error("Error al cargar el historial:", err);
-      } finally {
-        setLoading(false);
+  const fetchHistorial = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getUserHistorial<HistorialResponse>();
+
+      if (data) {
+        setHistorial(data.historial || []);
+        setCantidad(data.cantidad || 0);
       }
-    };
-    fetchHistorial();
+    } catch (err) {
+      console.error("Error al cargar el historial:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchHistorial();
+  }, [fetchHistorial]);
+
+  // Manejador de la cancelación usando el servicio
+  const handleConfirmarCancelacion = async () => {
+    if (!ordenACancelar) return;
+
+    try {
+      setCancelando(true);
+
+      // Usamos el apiClient centralizado
+      await cancelarOrdenCliente(ordenACancelar.id, motivoCancelacion);
+
+      setOrdenACancelar(null);
+      setMotivoCancelacion("");
+      await fetchHistorial();
+    } catch (err: unknown) {
+      const mensaje = err instanceof Error ? err.message : "Error al procesar la cancelación";
+      alert(mensaje);
+    } finally {
+      setCancelando(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -76,27 +66,18 @@ export default function HistorialCompras() {
   }
 
   // ====================================================================
-  // ESTADO VACÍO: Con Jefecito Enojado 🐾
+  // ESTADO VACÍO
   // ====================================================================
   if (historial.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center min-h-[60vh] text-center space-y-3 px-4">
-        <div className="transition-transform hover:scale-105 duration-300">
-          <Image
-            src="/jefecito-enojado.png" // Apunta a public/jefecito-enojado.png
-            alt="Jefecito Enojado"
-            width={200}
-            height={200}
-            priority
-            className="drop-shadow-lg object-contain mx-auto"
-          />
-        </div>
-        <p className="text-xl font-semibold text-[#6c5b7b] mt-2">
-          ¡No tienes compras aún!
-        </p>
-        <p className="text-sm text-gray-500 max-w-xs mx-auto">
-          ¿Qué estás esperando para llevarte tus favoritos? Jefecito te está
-          vigilando 👀
+      <div className="flex flex-col justify-center items-center min-h-[60vh] text-center space-y-4 px-4">
+        <CartPulse />
+        <h3 className="text-2xl font-bold text-[#6c5b7b] mt-4">
+          ¡Tu historial está más limpio que nunca! 🛍️
+        </h3>
+        <p className="text-base text-gray-600 max-w-sm mx-auto leading-relaxed">
+          ¿Qué estás esperando para darte ese gusto? Tu carrito se siente solo,
+          ¡ve por tu primer producto antes de que vuele! 🚀
         </p>
       </div>
     );
@@ -109,20 +90,18 @@ export default function HistorialCompras() {
           Mi Historial de Compras
         </h2>
 
-        <div className="mb-6 flex justify-between font-semibold text-color-dark bg-white/50 p-4 rounded-lg border border-lilac/30 shadow-sm">
-          <span>Pedidos: {cantidad}</span>
-          <span>
-            Inversión Total: $
-            {total.toLocaleString("es-AR", { minimumFractionDigits: 2 })}
+        {/* Solo la cantidad de pedidos */}
+        <div className="mb-6 flex justify-between items-center font-semibold text-color-dark bg-white/50 p-4 rounded-lg border border-lilac/30 shadow-sm">
+          <span>Pedidos Realizados: {cantidad}</span>
+          <span className="text-xs text-gray-500 font-normal italic">
+            Tus pedidos recientes y su estado
           </span>
         </div>
 
         <div className="space-y-6">
           {historial.map((orden) => {
-            const config = ESTADOS_CONFIG[orden.estado] || {
-              label: orden.estado,
-              color: "bg-gray-100 text-gray-600",
-            };
+            const estadoNormalizado = orden.estado ? orden.estado.toUpperCase() : "PENDIENTE";
+            const esCancelable = ["PENDIENTE", "PAGADO"].includes(estadoNormalizado);
 
             return (
               <div
@@ -139,12 +118,31 @@ export default function HistorialCompras() {
                       #{orden.id.slice(0, 8)}
                     </span>
                   </div>
+
+                  {/* Badge de Estado */}
+                  <div className="text-center">
+                    <span className="text-[10px] font-bold text-gray-400 block uppercase tracking-tighter">
+                      Estado
+                    </span>
+                    <span
+                      className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        estadoNormalizado === "CANCELADO"
+                          ? "bg-red-100 text-red-700"
+                          : estadoNormalizado === "PAGADO"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {estadoNormalizado}
+                    </span>
+                  </div>
+
                   <div className="text-right">
                     <span className="text-[10px] font-bold text-gray-400 block uppercase tracking-tighter">
                       Fecha de Compra
                     </span>
                     <span className="text-sm font-medium text-gray-700">
-                      {new Date(orden.createdAt).toLocaleDateString()}
+                      {new Date(orden.createdAt).toLocaleDateString("es-AR")}
                     </span>
                   </div>
                 </div>
@@ -170,7 +168,7 @@ export default function HistorialCompras() {
                         <p className="text-xs text-gray-500">
                           {producto.cantidad} x $
                           {Number(producto.precio).toLocaleString("es-AR", {
-                            minimumFractionDigits: 2,
+                            minimumFractionDigits: 0,
                           })}
                         </p>
                       </div>
@@ -181,15 +179,17 @@ export default function HistorialCompras() {
                 {/* Footer de la Orden */}
                 <div className="mt-5 pt-4 border-t flex justify-between items-center">
                   <div>
-                    <span className="text-[10px] font-bold text-gray-400 block uppercase mb-1">
-                      Estado del Pedido
-                    </span>
-                    <span
-                      className={`text-[11px] px-3 py-1 rounded-full font-bold border ${config.color}`}
-                    >
-                      {config.label}
-                    </span>
+                    {esCancelable && (
+                      <button
+                        onClick={() => setOrdenACancelar(orden)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 text-xs font-medium rounded-lg transition-colors cursor-pointer"
+                      >
+                        <XCircle className="w-4 h-4" />
+                        Cancelar pedido
+                      </button>
+                    )}
                   </div>
+
                   <div className="text-right">
                     <span className="text-[10px] font-bold text-gray-400 block uppercase">
                       Monto Final
@@ -197,7 +197,7 @@ export default function HistorialCompras() {
                     <span className="text-xl font-black text-lilac-dark">
                       $
                       {Number(orden.total).toLocaleString("es-AR", {
-                        minimumFractionDigits: 2,
+                        minimumFractionDigits: 0,
                       })}
                     </span>
                   </div>
@@ -207,6 +207,65 @@ export default function HistorialCompras() {
           })}
         </div>
       </div>
+
+      {/* MODAL DE CONFIRMACIÓN DE CANCELACIÓN */}
+      {ordenACancelar && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4 border border-gray-100 animate-fadeIn">
+            <div className="flex items-center gap-3 text-red-600">
+              <AlertCircle className="w-6 h-6 shrink-0" />
+              <h3 className="text-lg font-bold">¿Cancelar este pedido?</h3>
+            </div>
+
+            <p className="text-sm text-gray-600 leading-relaxed">
+              Estás a punto de cancelar la orden{" "}
+              <span className="font-mono font-semibold text-gray-800">
+                #{ordenACancelar.id.slice(0, 8)}
+              </span>
+              . Se repondrá el stock de los productos seleccionados.
+            </p>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 mb-1">
+                Motivo de cancelación (opcional)
+              </label>
+              <textarea
+                value={motivoCancelacion}
+                onChange={(e) => setMotivoCancelacion(e.target.value)}
+                placeholder="Escribe aquí si tuviste algún inconveniente..."
+                className="w-full text-sm p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 text-gray-700"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                disabled={cancelando}
+                onClick={() => setOrdenACancelar(null)}
+                className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+              >
+                Volver
+              </button>
+              <button
+                disabled={cancelando}
+                onClick={handleConfirmarCancelacion}
+                className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                {cancelando ? "Procesando..." : "Confirmar Cancelación"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CartPulse() {
+  return (
+    <div className="relative flex items-center justify-center p-4">
+      <ShoppingCart className="h-16 w-16 text-[#7b5ca2] animate-bounce z-10" />
+      <div className="absolute h-20 w-20 rounded-full bg-[#7b5ca2]/20 animate-ping"></div>
     </div>
   );
 }

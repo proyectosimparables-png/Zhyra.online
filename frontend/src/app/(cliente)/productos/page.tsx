@@ -19,6 +19,8 @@ export default async function TodosLosProductosPage() {
   // Traemos todo el catálogo (TypeScript ya sabe que es un array de tipo Producto[])
   const allProducts = await getProductosPublicos();
 
+
+
   // Mapeamos usando el tipo Producto nativo sin forzar conversiones raras
   const formattedProducts: ProductoFormateado[] = (
     allProducts as Producto[]
@@ -39,6 +41,11 @@ export default async function TodosLosProductosPage() {
       // La imagen de hover la extraemos de forma segura de la segunda posición del array de imágenes
       imagenHoverUrl: p.imagenes.length > 1 ? p.imagenes[1] : undefined,
       published: p.published,
+      promociones: p.promociones?.map((promo) => ({
+        id: promo.id,
+        nombre: promo.nombre,
+        tipo: promo.tipo,
+      })),
     };
   });
 

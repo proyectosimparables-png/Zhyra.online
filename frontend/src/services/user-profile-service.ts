@@ -34,6 +34,7 @@ export async function updateUserAddress(address: string): Promise<RespuestaDirec
   return await apiRequest<RespuestaDireccion>("/auth/local/update-address", {
     method: "POST",
     body: JSON.stringify({ address }),
+    credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
   });
 }
 
@@ -42,6 +43,7 @@ export async function editUserAddress(address: string): Promise<RespuestaDirecci
     return await apiRequest<RespuestaDireccion>("/auth/edit-address", {
       method: "POST",
       body: JSON.stringify({ address }),
+      credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     });
   } catch (error) {
     console.error("Error real del backend:", error);

@@ -42,6 +42,7 @@ export async function verifyEmailLocal(code: string): Promise<boolean> {
   await apiRequest<void>("/auth/local/verify-email", {
     method: "POST",
     body: JSON.stringify({ code }),
+    credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
   });
   return true;
 }
@@ -52,6 +53,7 @@ export async function verifyEmailLocal(code: string): Promise<boolean> {
 export async function resendCodeLocal(): Promise<boolean> {
   await apiRequest<void>("/auth/local/resend-verification", {
     method: "POST",
+    credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
   });
   return true;
 }

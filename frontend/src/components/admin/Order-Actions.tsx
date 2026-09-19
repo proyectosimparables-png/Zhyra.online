@@ -35,11 +35,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { adminOrderService } from "@/services/admin/admin-orders-service";
-import { ModalCancelarVenta } from "@/componentes/admin/ModalCancelarVenta";
+
 import { OrderResponse } from "@/types/orders";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { ModalCancelarVenta } from "./Cancel-Sale-Modal";
 
 interface CancelData {
   motivo: string;

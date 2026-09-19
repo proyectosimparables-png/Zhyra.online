@@ -6,7 +6,8 @@ import { notFound } from "next/navigation";
 import OrderHeader from "@/components/admin/Sales-History";
 import { adminOrderService } from "@/services/admin/admin-orders-service";
 import StatusActionButton from "@/components/admin/Status-Card-Actions";
-import AdminNotesSection from "@/componentes/admin/Admin-notes-section";
+import AdminNotesSection from "@/components/admin/Admin-Notes-Section";
+
 
 interface OrderItem {
   id: string;

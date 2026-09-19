@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Ticket, Plus, Tag, Trash2, Edit3, Loader2 } from "lucide-react";
-import FormCupon from "@/componentes/admin/FormCupon";
+
 
 import { CuponResponse } from "@/types/promotions";
 import { promocionesService } from "@/services/admin/admin-promotions-service";
+import FormCupon from "./Form-Coupon";
 
 export default function ListaCupones() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);

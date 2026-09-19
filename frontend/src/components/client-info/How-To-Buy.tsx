@@ -6,7 +6,7 @@ export default function ComoComprar() {
       numero: "1",
       titulo: "Elige tu producto",
       descripcion:
-        "Navega por las categorías o usa el buscador para encontrar lo que deseas.",
+        "Navega por las categorías o usa el buscador: al ingresar el nombre de la prenda que deseas buscar, te irán apareciendo las distintas opciones disponibles.",
     },
     {
       numero: "2",
@@ -81,14 +81,15 @@ export default function ComoComprar() {
         ))}
       </div>
 
-      {/* 🐶 Mensaje final */}
+      {/* 💜 Mensaje final */}
       <div className="text-center mt-12 text-[var(--color-dark)]">
         <p className="text-lg font-medium mb-2">
-          ¡Así de sencillo! 💜 Si tenés dudas, comunicate directamente con nosotras
+          ¡Así de sencillo! 💜 Si tenés dudas, comunicate directamente con nosotros
           por cualquiera de nuestras vías de comunicación.
         </p>
         <p className="text-sm italic mt-2">
-          Con cariño,<br />El team de <strong>Moonlight</strong> (y el jefe 🐶)
+          Con mucho amor y dedicación,<br />
+          El equipo de <strong>Zhyra.online</strong> ✨💜
         </p>
       </div>
 

@@ -1,4 +1,4 @@
-import TransferPaymentView from "@/components/checkout/Transfer-Payment";
+/*import TransferPaymentView from "@/components/checkout/Transfer-Payment";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -10,8 +10,8 @@ export default async function OrderSuccessPage({ params }: Props) {
 
   return (
     <div className="container mx-auto">
-      {/* Llamamos al componente que pegaste en la carpeta components */}
+   
       <TransferPaymentView params={{ id }} />
     </div>
   );
-}
+}*/

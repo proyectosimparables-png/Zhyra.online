@@ -20,11 +20,25 @@ export class MailController {
   async subscribe(@Body('email') email: string) {
     if (!email) return { success: false, message: "Email requerido" };
 
-    await this.mailService.sendMail(
-      "russnataliav@gmail.com",
-      "Nuevo suscriptor del Moonlight Club",
-      `<h2>Nuevo suscriptor</h2><p>Email: <strong>${email}</strong></p>`
-    );
+   await this.mailService.sendMail(
+        'zhyra.online@gmail.com',
+        'Nueva suscripción 💜',
+        `
+          <h2>Nuevo suscriptor</h2>
+          <p><strong>Email:</strong> ${email}</p>
+        `,
+      );
+
+      // 📩 2. Mail para el usuario (bienvenida)
+      await this.mailService.sendMail(
+        email,
+        'Bienvenida a Zhyra 💜',
+        `
+          <h1>Gracias por suscribirte 💜</h1>
+          <p>Te vamos a avisar cuando haya novedades ✨</p>
+        `,
+      );
+
     return { success: true, message: "Suscripción enviada" };
   }
 

@@ -3,13 +3,17 @@
 export type SeccionType = {
   id: string;
   nombre: string;
+  slug?: string;
+  categorias?: CategoriaType[];
 };
 
 export type CategoriaType = {
   id: string;
   nombre: string;
   parent?: CategoriaType | null;
-  seccionId?: string | null; // 💡 ¡TIP EXTRA! Agregalo acá también si querés que la categoría sepa a qué sección pertenece
+  seccionId?: string | null;
+  subcategorias?: CategoriaType[];
+  slug?: string;
 };
 
 // 1. EL NÚCLEO: La Variante
@@ -47,6 +51,12 @@ export type Producto = {
   talles: string[];
   colores: string[];
   variantes: Variante[];
+  promociones?: {
+    id: string;
+    nombre: string;
+    tipo: string;
+  }[];
+
 };
 
 // 3. RESPUESTA DEL BACKEND (NestJS + Prisma)
@@ -126,5 +136,6 @@ export interface Favorito {
     imagenUrl: string;
     imagenHoverUrl?: string | null;
     imagenes: string[];
+    slug: string;
   };
 }

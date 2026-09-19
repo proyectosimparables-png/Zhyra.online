@@ -276,7 +276,7 @@ export class OrdenesService {
     });
   }
 
-  async cancelarOrden(id: string, dto: { motivo: string; restaurarStock: boolean; enviarEmail: boolean }) {
+  async cancelarOrden(id: string, dto: { motivo: string; restaurarStock: boolean; enviarEmail: boolean; }) {
     const { motivo, restaurarStock, enviarEmail } = dto;
 
     const ordenActualizada = await this.prisma.$transaction(async (tx) => {
@@ -346,4 +346,111 @@ export class OrdenesService {
       throw new BadRequestException('No se pudo actualizar la nota de la orden');
     }
   }
+
+
+
+/**
+   * Cancelación iniciada por el CLIENTE desde su panel
+   */
+  async cancelarOrdenPorCliente(
+    ordenId: string,
+    userId: string,
+    userEmail: string,
+    motivoCliente?: string,
+  ) {
+    // 1. Obtener la orden con sus ítems
+    const orden = await this.prisma.orden.findUnique({
+      where: { id: ordenId },
+      include: { items: true, user: true },
+    });
+
+    if (!orden) {
+      throw new NotFoundException('La orden no existe');
+    }
+
+    // 2. Control de Acceso: Verificar que la orden pertenezca al usuario
+    if (orden.userId !== userId && orden.user.email !== userEmail) {
+      throw new BadRequestException('No tenés permiso para cancelar esta orden');
+    }
+
+    // 3. Regla de Negocio: Solo permitir cancelación si la orden NO fue empaquetada ni enviada
+    const estadosCancelables: EstadoOrden[] = [
+      EstadoOrden.PENDIENTE,
+      EstadoOrden.PAGADO,
+    ];
+
+    if (!estadosCancelables.includes(orden.estado)) {
+      throw new BadRequestException(
+        `No es posible cancelar la orden porque su estado actual es ${orden.estado}. Contactá a soporte.`,
+      );
+    }
+
+    const motivo = motivoCliente || 'Cancelado por el cliente desde el panel';
+
+    // 4. Transacción DB: Restaurar stock y cambiar estado a CANCELADO
+    const ordenCancelada = await this.prisma.$transaction(async (tx) => {
+      // Reponer Stock de cada variante
+      for (const item of orden.items) {
+        if (item.varianteId) {
+          const variante = await tx.variante.findUnique({
+            where: { id: item.varianteId },
+          });
+
+          if (variante && variante.stock !== null) {
+            await tx.variante.update({
+              where: { id: item.varianteId },
+              data: { stock: { increment: item.cantidad } },
+            });
+          }
+        }
+      }
+
+      // Actualizar Orden
+      return await tx.orden.update({
+        where: { id: ordenId },
+        data: {
+          estado: EstadoOrden.CANCELADO,
+          notasAdmin: `[Cancelado por cliente]: ${motivo}`,
+        },
+      });
+    });
+
+    // 5. Enviar Emails (Notificar tanto al cliente como al Administrador)
+    try {
+      const emailCliente = orden.emailContacto || orden.user.email;
+      const nombreCliente = orden.nombreDestinatario || orden.user.name || 'Cliente';
+      
+
+      // Notificación al Cliente
+      if (emailCliente) {
+        await this.mailService.sendOrderCancelledNotification(
+          emailCliente,
+          nombreCliente,
+          orden.id,
+          motivo,
+        );
+      }
+
+      // Notificación al Admin (puedes configurar tu email admin en las variables de entorno)
+      const emailAdmin = process.env.ADMIN_EMAIL || process.env.MAIL_USER;
+      if (emailAdmin) {
+        await this.mailService.sendOrderCancelledNotification(
+          emailAdmin,
+          `ADMIN - Cancelación de ${nombreCliente}`,
+          orden.id,
+          `El cliente solicitó la cancelación. Motivo: "${motivo}". ${
+            orden.estado === EstadoOrden.PAGADO
+              ? 'ATENCIÓN: La orden figuraba como PAGADA. Verificar reembolso manual en Mercado Pago/Banco.'
+              : ''
+          }`,
+        );
+      }
+    } catch (error) {
+      console.error('Error enviando correos de cancelación:', error);
+    }
+
+    return ordenCancelada;
+  }
+
+
 }

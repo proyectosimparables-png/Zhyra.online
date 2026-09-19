@@ -6,6 +6,7 @@ import { getPuntosEntrega } from "@/services/envios/delivery-points-service";
 import { getShippingRates } from "@/services/envios/correo-service";
 import { useCheckout } from "@/context/Checkout-Context";
 import { useCart } from "@/context/Cart-Context";
+import { CartItemInput, ShippingRateResult } from "@/types/shipping";
 
 interface PuntoEntrega {
   id: string;
@@ -15,20 +16,20 @@ interface PuntoEntrega {
   demora?: string;
 }
 
-interface CorreoRate {
+/*interface CorreoRate {
   nombre: string;
   precio: number;
   deliveredType: "D" | "S";
   plazoMin: number;
   plazoMax: number;
 }
-
+*/
 export default function ShippingSelector() {
   const { formData, updateFormData } = useCheckout();
   const { cart } = useCart();
 
   const [puntos, setPuntos] = useState<PuntoEntrega[]>([]);
-  const [correoRates, setCorreoRates] = useState<CorreoRate[]>([]);
+  const [correoRates, setCorreoRates] = useState<ShippingRateResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showOptions, setShowOptions] = useState(!formData.metodoEnvio);
@@ -62,8 +63,15 @@ export default function ShippingSelector() {
 
     setLoading(true);
     setError(null);
+    const cart2: CartItemInput[] = cart.map((item) => ({
+      id: item.id,
+      productoId: item.id,
+      varianteId: item.varianteId,
+      quantity: item.quantity,
+    }));
+   
     try {
-      const rates = await getShippingRates(cp, cart);
+      const rates = await getShippingRates(cp, cart2); 
       setCorreoRates(rates);
       if (rates.length === 0)
         setError("No hay envíos disponibles para este CP.");
@@ -115,7 +123,7 @@ export default function ShippingSelector() {
           </div>
           <button
             onClick={() => setShowOptions(!showOptions)}
-            className="text-[11px] font-bold text-gray-500 underline uppercase tracking-tighter"
+            className="rounded-full w-auto border border-gray-300 text-gray-400 text-xs font-bold px-4 py-2 hover:bg-[#A186ED]/10 transition-colors"
           >
             {showOptions ? "Cerrar" : "Cambiar"}
           </button>
@@ -125,7 +133,7 @@ export default function ShippingSelector() {
       {showOptions && (
         <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
           {/* Input Código Postal */}
-          <div className="relative border-b border-gray-200 focus-within:border-[#A186ED] transition-colors">
+          <div className=" relative border-b border-gray-200 focus-within:border-[#A186ED] transition-colors">
             <input
               type="text"
               placeholder="Tu código postal (ej: 1712)"
@@ -171,7 +179,7 @@ export default function ShippingSelector() {
                     <div className="flex-1">
                       <p className="text-sm text-gray-700">{rate.nombre}</p>
                       <p className="text-[10px] text-gray-400">
-                        Entre {rate.plazoMin}-{rate.plazoMax} días hábiles
+                        Entre {rate.plazoMin} y {rate.plazoMax} días hábiles
                       </p>
                     </div>
                     <span className="font-bold text-sm text-[#4A4A4A]">

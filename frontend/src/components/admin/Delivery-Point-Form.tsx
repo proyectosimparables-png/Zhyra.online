@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import {
   getPuntosEntrega,
@@ -6,39 +7,43 @@ import {
   deletePuntoEntrega,
   updatePuntoEntrega,
 } from "@/services/envios/delivery-points-service";
+// Importamos directamente las interfaces centralizadas del backend/frontend
+import {
+  PuntoEntrega,
+  CreatePuntoEntregaDTO,
+} from "@/types/shipping"; 
 import {
   TrashIcon,
   PencilSquareIcon,
-  MapPinIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 
-export default function GestionPuntosEntrega() {
-  // 1. SOLUCIÓN AL ERROR .MAP: Inicializar siempre como array vacío []
-  const [puntos, setPuntos] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editando, setEditando] = useState<any | null>(null); // Para el Modal
+const INITIAL_FORM_DATA: CreatePuntoEntregaDTO = {
+  nombre: "",
+  direccion: "",
+  localidad: "",
+  provincia: "",
+  disponibilidad: "",
+  costo: 0,
+  esDomicilio: false,
+  activo: true,
+};
 
-  const [formData, setFormData] = useState({
-    nombre: "",
-    direccion: "",
-    localidad: "",
-    disponibilidad: "",
-    costo: 0,
-    esDomicilio: false,
-  });
+export default function GestionPuntosEntrega() {
+  // Usamos la interfaz global PuntoEntrega
+  const [puntos, setPuntos] = useState<PuntoEntrega[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [editando, setEditando] = useState<PuntoEntrega | null>(null);
+  const [formData, setFormData] = useState<CreatePuntoEntregaDTO>(INITIAL_FORM_DATA);
 
   const cargarPuntos = async () => {
     try {
       const data = await getPuntosEntrega();
-      // Verificamos que 'data' sea un array antes de setearlo
       setPuntos(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error(error);
-      setPuntos([]); // Si falla, queda como array vacío para que no rompa el .map
+      setPuntos([]);
     } finally {
       setLoading(false);
     }
@@ -48,31 +53,26 @@ export default function GestionPuntosEntrega() {
     cargarPuntos();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await createPuntoEntrega(formData);
       toast.success("Punto creado");
-      setFormData({
-        nombre: "",
-        direccion: "",
-        localidad: "",
-        disponibilidad: "",
-        costo: 0,
-        esDomicilio: false,
-      });
+      setFormData(INITIAL_FORM_DATA);
       cargarPuntos();
     } catch (error) {
       toast.error("Error al crear");
     }
   };
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!editando) return;
+
     try {
       await updatePuntoEntrega(editando.id, editando);
       toast.success("Punto actualizado");
-      setEditando(null); // Cerrar modal
+      setEditando(null);
       cargarPuntos();
     } catch (error) {
       toast.error("Error al actualizar");
@@ -102,6 +102,7 @@ export default function GestionPuntosEntrega() {
         </h3>
         <div className="space-y-3">
           <input
+            type="text"
             placeholder="Nombre"
             className="w-full border p-2 rounded-lg text-sm"
             value={formData.nombre}
@@ -113,18 +114,20 @@ export default function GestionPuntosEntrega() {
           <select
             className="w-full border p-2 rounded-lg text-sm bg-gray-50"
             value={formData.esDomicilio.toString()}
-            onChange={(e) =>
+            onChange={(e) => {
+              const isHome = e.target.value === "true";
               setFormData({
                 ...formData,
-                esDomicilio: e.target.value === "true",
-                costo: e.target.value === "true" ? 0 : formData.costo,
-              })
-            }
+                esDomicilio: isHome,
+                costo: isHome ? 0 : formData.costo,
+              });
+            }}
           >
             <option value="false">Punto de encuentro (Pago)</option>
             <option value="true">Mi Domicilio (Gratis)</option>
           </select>
           <input
+            type="text"
             placeholder="Dirección"
             className="w-full border p-2 rounded-lg text-sm"
             value={formData.direccion}
@@ -134,6 +137,7 @@ export default function GestionPuntosEntrega() {
             required
           />
           <input
+            type="text"
             placeholder="Localidad"
             className="w-full border p-2 rounded-lg text-sm"
             value={formData.localidad}
@@ -143,7 +147,18 @@ export default function GestionPuntosEntrega() {
             required
           />
           <input
-            placeholder="Horarios"
+            type="text"
+            placeholder="Provincia"
+            className="w-full border p-2 rounded-lg text-sm"
+            value={formData.provincia}
+            onChange={(e) =>
+              setFormData({ ...formData, provincia: e.target.value })
+            }
+            required
+          />
+          <input
+            type="text"
+            placeholder="Horarios / Disponibilidad"
             className="w-full border p-2 rounded-lg text-sm"
             value={formData.disponibilidad}
             onChange={(e) =>
@@ -153,6 +168,7 @@ export default function GestionPuntosEntrega() {
           />
           {!formData.esDomicilio && (
             <input
+              type="number"
               placeholder="Costo"
               className="w-full border p-2 rounded-lg text-sm"
               value={formData.costo}
@@ -162,7 +178,10 @@ export default function GestionPuntosEntrega() {
             />
           )}
         </div>
-        <button className="w-full bg-purple-600 text-white py-2.5 rounded-xl font-semibold hover:bg-purple-700 transition-all">
+        <button
+          type="submit"
+          className="w-full bg-purple-600 text-white py-2.5 rounded-xl font-semibold hover:bg-purple-700 transition-all"
+        >
           Guardar Punto
         </button>
       </form>
@@ -173,7 +192,7 @@ export default function GestionPuntosEntrega() {
         {loading ? (
           <p className="text-center text-sm text-gray-400">Cargando...</p>
         ) : (
-          puntos.map((punto: any) => (
+          puntos.map((punto) => (
             <div
               key={punto.id}
               className="bg-white border rounded-xl p-4 shadow-sm flex justify-between items-center group"
@@ -184,7 +203,7 @@ export default function GestionPuntosEntrega() {
                 </p>
                 <div className="text-xs text-gray-500">
                   <p>
-                    {punto.direccion}, {punto.localidad}
+                    {punto.direccion}, {punto.localidad}, {punto.provincia}
                   </p>
                   <p className="text-purple-600 font-medium">
                     {punto.costo === 0 ? "Gratis" : `$${punto.costo}`}
@@ -193,12 +212,14 @@ export default function GestionPuntosEntrega() {
               </div>
               <div className="flex gap-1">
                 <button
+                  type="button"
                   onClick={() => setEditando(punto)}
                   className="p-2 text-blue-500 hover:bg-blue-50 rounded-full"
                 >
                   <PencilSquareIcon className="w-5 h-5" />
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleEliminar(punto.id)}
                   className="p-2 text-red-500 hover:bg-red-50 rounded-full"
                 >
@@ -210,11 +231,12 @@ export default function GestionPuntosEntrega() {
         )}
       </div>
 
-      {/* MODAL DE EDICIÓN (VENTANITA) */}
+      {/* MODAL DE EDICIÓN */}
       {editando && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-6 relative animate-in fade-in zoom-in duration-200">
             <button
+              type="button"
               onClick={() => setEditando(null)}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
             >
@@ -225,7 +247,8 @@ export default function GestionPuntosEntrega() {
 
             <form onSubmit={handleUpdate} className="space-y-3">
               <input
-                className="w-full border p-2 rounded-lg"
+                type="text"
+                className="w-full border p-2 rounded-lg text-sm"
                 value={editando.nombre}
                 onChange={(e) =>
                   setEditando({ ...editando, nombre: e.target.value })
@@ -233,7 +256,8 @@ export default function GestionPuntosEntrega() {
                 required
               />
               <input
-                className="w-full border p-2 rounded-lg"
+                type="text"
+                className="w-full border p-2 rounded-lg text-sm"
                 value={editando.direccion}
                 onChange={(e) =>
                   setEditando({ ...editando, direccion: e.target.value })
@@ -241,7 +265,8 @@ export default function GestionPuntosEntrega() {
                 required
               />
               <input
-                className="w-full border p-2 rounded-lg"
+                type="text"
+                className="w-full border p-2 rounded-lg text-sm"
                 value={editando.localidad}
                 onChange={(e) =>
                   setEditando({ ...editando, localidad: e.target.value })
@@ -249,7 +274,17 @@ export default function GestionPuntosEntrega() {
                 required
               />
               <input
-                className="w-full border p-2 rounded-lg"
+                type="text"
+                className="w-full border p-2 rounded-lg text-sm"
+                value={editando.provincia}
+                onChange={(e) =>
+                  setEditando({ ...editando, provincia: e.target.value })
+                }
+                required
+              />
+              <input
+                type="text"
+                className="w-full border p-2 rounded-lg text-sm"
                 value={editando.disponibilidad}
                 onChange={(e) =>
                   setEditando({ ...editando, disponibilidad: e.target.value })
@@ -259,7 +294,7 @@ export default function GestionPuntosEntrega() {
               {!editando.esDomicilio && (
                 <input
                   type="number"
-                  className="w-full border p-2 rounded-lg"
+                  className="w-full border p-2 rounded-lg text-sm"
                   value={editando.costo}
                   onChange={(e) =>
                     setEditando({ ...editando, costo: Number(e.target.value) })

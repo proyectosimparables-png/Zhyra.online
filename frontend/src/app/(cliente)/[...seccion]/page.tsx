@@ -19,7 +19,7 @@ interface CategoriaTreeLocal {
   subcategorias?: CategoriaTreeLocal[];
 }
 
-interface ProductoFormateado {
+  export interface ProductoFormateado {
   id: string;
   nombre: string;
   slug: string;
@@ -27,6 +27,12 @@ interface ProductoFormateado {
   imagenUrl: string;
   imagenHoverUrl: string | undefined;
   published: boolean;
+  promociones?: {
+    id: string;
+    nombre: string;
+    tipo: string;
+  }[];
+  promoName?: string; // Agregamos el nombre de la primera promoción si existe
 }
 
 interface ObjetoDinamico {
@@ -172,6 +178,13 @@ function renderizarCatálogo(
     imagenUrl: p.imagenUrl || p.imagenes?.[0] || "/placeholder.png",
     imagenHoverUrl: p.imagenes?.length > 1 ? p.imagenes[1] : undefined,
     published: p.published,
+    promociones: p.promociones?.map((promo) => ({
+      id: promo.id,
+      nombre: promo.nombre,
+      tipo: promo.tipo,
+    })),
+    promoName: p.promociones?.[0]?.nombre, // Agregamos el nombre de la primera promoción si existe
+
   }));
 
   const safeTree = mapearArbolSeguro(tree);

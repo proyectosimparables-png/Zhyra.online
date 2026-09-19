@@ -15,6 +15,7 @@ export const eliminarFavorito = async (userId: string, productoId: number): Prom
     `/favoritos/eliminar?userId=${userId}&productoId=${productoId}`,
     {
       method: "DELETE",
+      credentials: "include", // Asegura que las cookies de sesión se envíen con la solicitud
     }
   );
 };

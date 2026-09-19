@@ -14,101 +14,117 @@ function slugify(text: string): string {
     .replace(/-+$/, '');
 }
 
-/* ---------------- ESTRUCTURA COMPLETA ---------------- */
-const estructura = [
-  { nombre: "Ver todos los productos" },
-  { nombre: "Novedades" },
-  { nombre: "Los más elegidos" },
-  { nombre: "Outlet" },
+/* ---------------- TIPOS ---------------- */
+type NodoCategoria = {
+  nombre: string;
+  children?: NodoCategoria[];
+};
+
+type SeccionSeed = {
+  nombre: string;
+  categorias?: NodoCategoria[];
+};
+
+/* ---------------- NUEVA ESTRUCTURA ---------------- */
+const estructura: SeccionSeed[] = [
 
   {
-    nombre: "Indumentaria",
+    nombre: "Remeras",
     categorias: [
       {
-        nombre: "Remeras",
-        subcategorias: [
-          {
-            nombre: "BTS",
-            subcategorias: [
-              { nombre: "RM" },
-              { nombre: "Taehyung" },
-              { nombre: "Jungkook" },
-              { nombre: "J-Hope" },
-              { nombre: "Jimin" },
-              { nombre: "Jin" },
-              { nombre: "Suga" },
-              { nombre: "Rap Line" },
-              { nombre: "Vocal Line" },
-            ],
-          },
-          { nombre: "Stray Kids" },
-          { nombre: "The Rose" },
-          { nombre: "Jonas Brothers" },
-          { nombre: "New Jeans" },
-        ],
-      },
-
-      {
-        nombre: "Abrigos",
-        subcategorias: [
-          {
-            nombre: "Hoodies",
-            subcategorias: [
-              { nombre: "BTS" },
-              { nombre: "Stray Kids" },
-            ],
-          },
-          {
-            nombre: "Buzos",
-            subcategorias: [
-              { nombre: "BTS" },
-              { nombre: "Stray Kids" },
-            ],
-          },
-        ],
+        nombre: "Corta",
+        children: [{ nombre: "Tiras" }],
       },
     ],
   },
 
   {
-    nombre: "Bangtan Limited Edition",
+    nombre: "Body",
     categorias: [
-      { nombre: "Accesorios" },
-      { nombre: "Bangtan Bags" },
-      { nombre: "Bangtan Home" },
+      {
+        nombre: "Corta",
+        children: [{ nombre: "Manga larga" }],
+      },
     ],
   },
 
-  { nombre: "Gift Cards" },
+  {
+    nombre: "Deportiva",
+    categorias: [
+      { nombre: "Tops" },
+      { nombre: "Conjuntos" },
+      { nombre: "Calzas" },
+    ],
+  },
+
+  {
+    nombre: "Básicas",
+    categorias: [
+      { nombre: "Manga larga" },
+      { nombre: "Manga corta" },
+      { nombre: "Tiras" },
+    ],
+  },
+
+  {
+    nombre: "Short",
+  },
+
+  {
+    nombre: "Ropa interior",
+  },
+
+  {
+    nombre: "Vestidos",
+    categorias: [
+      { nombre: "Cortos" },
+      { nombre: "Largos" },
+    ],
+  },
+
+  {
+    nombre: "Polleras",
+  },
+  {
+    nombre: "Ofertas",
+  },
 ];
 
-/* ---------------- FUNCIONES RECURSIVAS ---------------- */
-
-async function crearCategoria(nombre: string, parentId: string | null, seccionId: string | null) {
+/* ---------------- CREAR CATEGORÍA ---------------- */
+async function crearCategoria(
+  nombre: string,
+  parentId: string | null,
+  seccionId: string
+) {
   return prisma.categoria.create({
     data: {
       nombre,
-      slug: slugify(nombre), // ✅ ahora no dará error
+      slug: slugify(nombre),
       parentId,
       seccionId,
-    } as any, // <-- para evitar TS complaining
+    },
   });
 }
 
-
+/* ---------------- RECURSIVO ---------------- */
 async function procesarCategorias(
-  lista: any[],
+  lista: NodoCategoria[],
   parentId: string | null,
-  seccionId: string | null
+  seccionId: string
 ) {
   for (const item of lista) {
-    const categoria = await crearCategoria(item.nombre, parentId, seccionId);
+    const categoria = await crearCategoria(
+      item.nombre,
+      parentId,
+      seccionId
+    );
 
-    // Verificamos tanto 'subcategorias' como 'categorias' para que sea flexible
-    const hijos = item.subcategorias || item.categorias;
-
-    if (hijos) {
-      await procesarCategorias(hijos, categoria.id, seccionId);
+    if (item.children?.length) {
+      await procesarCategorias(
+        item.children,
+        categoria.id,
+        seccionId
+      );
     }
   }
 }
@@ -117,7 +133,6 @@ async function procesarCategorias(
 async function main() {
   console.log("🧹 Limpiando base de datos...");
 
-  // ORDEN CORRECTO (evita errores P2003)
   await prisma.favorito.deleteMany();
   await prisma.comentario.deleteMany();
 
@@ -147,15 +162,18 @@ async function main() {
     });
 
     if (sec.categorias) {
-      await procesarCategorias(sec.categorias, null, seccion.id);
+      await procesarCategorias(
+        sec.categorias,
+        null,
+        seccion.id
+      );
     }
   }
-  /* ---------------- CONFIGURACIONES INICIALES ---------------- */
-  console.log("⚙️ Creando configuraciones iniciales...");
 
-  // Configuración de Envío
+  /* ---------------- CONFIGURACIONES ---------------- */
+
   await prisma.configuracionEnvio.upsert({
-    where: { id: 'default-shipping' }, // Usamos un ID fijo para evitar duplicados
+    where: { id: 'default-shipping' },
     update: {},
     create: {
       id: 'default-shipping',
@@ -164,17 +182,18 @@ async function main() {
     },
   });
 
-  // Configuración de Tienda (Mantenimiento)
   await prisma.configuracionTienda.upsert({
     where: { id: 'default-store-config' },
     update: {},
     create: {
       id: 'default-store-config',
       mantenimientoActivo: false,
-      mantenimientoMensaje: 'Estamos renovando la tienda y está quedando increíble. ¡Volvé en unos días!',
+      mantenimientoMensaje:
+        'Estamos renovando la tienda y está quedando increíble. ¡Volvé en unos días!',
       mantenimientoCodigo: 'MOONLIGHT_VIP',
     },
   });
+
   console.log("✨ Seed completado con éxito.");
 }
 

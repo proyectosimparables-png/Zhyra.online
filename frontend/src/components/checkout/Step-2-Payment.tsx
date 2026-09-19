@@ -9,9 +9,7 @@ import toast from "react-hot-toast";
 import {
   createOrder,
   createMPPreference,
-  createGoCuotasPayment,
-  OrderPayload,
-  OrderResponse,
+  // createGoCuotasPayment, // 🔴 GoCuotas deshabilitado
 } from "@/services/payments-service";
 import {
   ChevronRight,
@@ -22,7 +20,12 @@ import {
   Store,
   FileText,
   Loader2,
+  CheckCircle2,
+  CreditCard,
+  Sparkles,
+  Edit2,
 } from "lucide-react";
+import type { OrderPayload, OrderResponse } from "@/types/orders";
 
 const Step2Pago: React.FC = () => {
   const router = useRouter();
@@ -38,31 +41,37 @@ const Step2Pago: React.FC = () => {
   const [activeOrderId, setActiveOrderId] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // --- EFECTO DE VIGILANCIA ---
+  // 1. 🔥 SOLUCIÓN AL BUG: Resetear el método de pago al montar el componente
+  useEffect(() => {
+    updateFormData({ metodoPago: "" });
+  }, []);
+
+  // --- EFECTO DE VIGILANCIA (POLLING DE PAGO) ---
   useEffect(() => {
     if (isCheckingPayment && activeOrderId) {
       intervalRef.current = setInterval(async () => {
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/ordenes/${activeOrderId}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/ordenes/${activeOrderId}`,{
+            credentials: "include"
+            }
           );
           if (!response.ok) return;
 
           const orderData = await response.json();
 
-          // Si el Webhook del backend ya procesó el pago...
           if (orderData.estado === "PAGADO") {
             if (intervalRef.current) clearInterval(intervalRef.current);
             setIsCheckingPayment(false);
 
             toast.success("¡Pago confirmado con éxito!");
-            await clearCart(); // Limpiamos el carrito local
+            await clearCart();
             router.push(`/payment-success?orderId=${activeOrderId}`);
           }
         } catch (error) {
           console.error("Error vigilando pago:", error);
         }
-      }, 3000); // Checkea cada 3 segundos
+      }, 3000);
     }
 
     return () => {
@@ -108,11 +117,7 @@ const Step2Pago: React.FC = () => {
         metodoPago: formData.metodoPago,
         notasEntrega: formData.notasEntrega || "",
         cuponCodigo: formData.cuponCodigo || undefined,
-        items: cart.map((item) => ({
-          productoId: item.productoId,
-          cantidad: item.quantity,
-          precio: item.precioFinal / item.quantity,
-        })),
+        
       };
 
       const order: OrderResponse = await createOrder(orderPayload);
@@ -132,6 +137,8 @@ const Step2Pago: React.FC = () => {
           toast.error("Ventana emergente bloqueada. Por favor, habilitala.");
         }
         setIsCheckingPayment(true);
+      /*
+      // 🔴 GoCuotas deshabilitado
       } else if (formData.metodoPago === "GO_CUOTAS") {
         const payment = await createGoCuotasPayment(order.id);
         toast.success("Abriendo GoCuotas...", { id: toastId });
@@ -146,19 +153,12 @@ const Step2Pago: React.FC = () => {
           toast.error("Ventana emergente bloqueada.");
         }
         setIsCheckingPayment(true);
+      */
       } else {
         toast.success("¡Pedido realizado con éxito!", { id: toastId });
-
-        // Primero navegamos para que el usuario ya esté en la ruta nueva
-        router.push(`/order-success/${order.id}`);
-
-        // Y después limpiamos el carrito (sin el await para que no bloquee)
+       // router.push(`/order-success/${order.id}`);
         clearCart();
       }
-      // 2. Redirigimos a la nueva página que creamos en app/(cliente)/order-success/[id]
-      // Usamos order.id porque es el ID real que devuelve tu backend
-      console.log("Redirigiendo a ID:", order.id);
-      router.push(`/order-success/${order.id}`);
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Error inesperado";
       toast.error(msg, { id: toastId });
@@ -178,46 +178,52 @@ const Step2Pago: React.FC = () => {
     {
       id: "TRANSFERENCIA" as MetodoPago,
       label: "Transferencia / Depósito",
-      extra: `PAGÁS ${formatPrice(totalFinal * 0.9 + (formData.costoEnvio || 0))}`,
+      subtitle: "10% de descuento automático en tu compra",
+      extra: "10% OFF",
       icon: <Wallet className="w-5 h-5 text-[#A186ED]" />,
-      badgeClass: "bg-green-100 text-green-700",
+      badgeClass: "bg-purple-100 text-[#A186ED] font-bold border border-purple-200",
     },
     {
       id: "MERCADO_PAGO" as MetodoPago,
       label: "Mercado Pago",
+      subtitle: "Tarjetas de crédito, débito o dinero en cuenta",
       extra: "3 CUOTAS SIN INTERÉS",
       icon: <ExternalLink className="w-5 h-5 text-blue-500" />,
-      badgeClass: "bg-blue-100 text-blue-700",
+      badgeClass: "bg-blue-50 text-blue-600 font-bold border border-blue-200",
     },
-    {
+  /*
+  // 🔴 GoCuotas deshabilitado
+  {
       id: "GO_CUOTAS" as MetodoPago,
-      label: "Cuotas con Débito",
+      label: "Cuotas con Débito (GoCuotas)",
+      subtitle: "Aboná en cuotas con cualquier tarjeta de débito",
       extra: "4 CUOTAS SIN INTERÉS",
       icon: (
-        <div className="text-[9px] font-black border-2 border-pink-500 text-pink-500 px-1 rounded leading-tight">
+        <div className="text-[10px] font-black border-2 border-pink-500 text-pink-500 px-1 rounded leading-tight">
           GO
         </div>
       ),
-      badgeClass: "bg-pink-100 text-pink-700",
+      badgeClass: "bg-pink-50 text-pink-600 font-bold border border-pink-200",
     },
+  */
   ];
 
   return (
-    <div className="w-full animate-in fade-in duration-500 text-[#4A4A4A] pb-10">
-      {/* Resumen de Datos */}
-      <div className="border border-gray-200 rounded-sm mb-8 bg-white divide-y divide-gray-100 shadow-sm overflow-hidden">
+    <div className="w-full animate-in fade-in duration-300 text-[#4A4A4A] pb-10 font-sans">
+      {/* Targetas de Resumen de Datos de Envío */}
+      <div className="border border-gray-100 rounded-2xl mb-8 bg-white shadow-xs overflow-hidden divide-y divide-gray-100">
         <div className="p-4 flex items-center justify-between bg-gray-50/50">
-          <div className="flex items-center gap-3 text-sm text-gray-500">
+          <div className="flex items-center gap-3 text-xs font-medium text-gray-600">
             <Mail className="w-4 h-4 text-[#A186ED]" /> {formData.email}
           </div>
         </div>
 
-        <div className="p-4 flex items-start justify-between">
-          <div className="flex gap-4">
-            <Store className="w-4 h-4 text-gray-400 mt-1" />
-            <div className="text-sm">
-              <p className="font-bold text-gray-700">{formData.metodoEnvio}</p>
-              <p className="text-[#A186ED] font-semibold">
+        <div className="p-4 flex items-start justify-between hover:bg-gray-50/30 transition-colors">
+          <div className="flex gap-3.5">
+            <Store className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+            <div className="text-xs">
+              <p className="font-bold text-gray-800">{formData.metodoEnvio}</p>
+              <p className="text-[#A186ED] font-bold mt-0.5">
                 {formData.costoEnvio === 0
                   ? "Gratis"
                   : formatPrice(formData.costoEnvio || 0)}
@@ -226,20 +232,20 @@ const Step2Pago: React.FC = () => {
           </div>
           <button
             onClick={prevStep}
-            className="text-[10px] font-black uppercase text-gray-400 hover:text-[#A186ED]"
+            className="text-[10px] font-bold uppercase text-gray-400 hover:text-[#A186ED] flex items-center gap-1 transition-colors"
           >
-            Editar
+            <Edit2 className="w-3 h-3" /> Editar
           </button>
         </div>
 
-        <div className="p-4 flex items-start justify-between">
-          <div className="flex gap-4">
-            <FileText className="w-4 h-4 text-gray-400 mt-1" />
-            <div className="text-[13px] text-gray-500">
-              <p className="font-bold text-gray-700 uppercase text-[9px] tracking-widest mb-1">
-                Entrega en:
+        <div className="p-4 flex items-start justify-between hover:bg-gray-50/30 transition-colors">
+          <div className="flex gap-3.5">
+            <FileText className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+            <div className="text-xs text-gray-600 space-y-0.5">
+              <p className="font-bold text-gray-400 uppercase text-[9px] tracking-widest mb-1">
+                Dirección de entrega:
               </p>
-              <p className="font-medium text-gray-800 capitalize">
+              <p className="font-semibold text-gray-800 capitalize">
                 {formData.nombre} {formData.apellido}
               </p>
               <p>
@@ -253,90 +259,100 @@ const Step2Pago: React.FC = () => {
           </div>
           <button
             onClick={prevStep}
-            className="text-[10px] font-black uppercase text-gray-400 hover:text-[#A186ED]"
+            className="text-[10px] font-bold uppercase text-gray-400 hover:text-[#A186ED] flex items-center gap-1 transition-colors"
           >
-            Editar
+            <Edit2 className="w-3 h-3" /> Editar
           </button>
         </div>
 
         <div className="p-4">
           <button
             onClick={() => setShowNotes(!showNotes)}
-            className="flex items-center gap-4 w-full text-left"
+            className="flex items-center gap-3 w-full text-left"
           >
             <MessageSquare className="w-4 h-4 text-gray-400" />
-            <span className="text-[13px] text-gray-500 font-medium">
+            <span className="text-xs text-gray-600 font-medium hover:text-[#A186ED] transition-colors">
               {formData.notasEntrega
-                ? "Ver aclaraciones"
+                ? "Ver nota para la entrega"
                 : "Agregar nota al pedido"}
             </span>
           </button>
           {showNotes && (
             <textarea
-              className="w-full mt-3 p-3 border border-gray-100 text-sm focus:outline-none focus:border-[#A186ED] bg-gray-50 rounded-sm resize-none"
-              placeholder="¿Algo para el repartidor?"
+              className="w-full mt-3 p-3 border border-gray-200 text-xs focus:outline-none focus:border-[#A186ED] focus:ring-2 focus:ring-[#A186ED]/20 bg-gray-50 rounded-xl resize-none transition-all placeholder:text-gray-300"
+              placeholder="¿Instrucciones especiales para el envío?"
               value={formData.notasEntrega || ""}
-              onChange={(e) => updateFormData({ notasEntrega: e.target.value })}
+              onChange={(e) =>
+                updateFormData({ notasEntrega: e.target.value })
+              }
               rows={3}
             />
           )}
         </div>
       </div>
 
+      {/* Bloque de Polling (Procesando Pago) */}
       {isCheckingPayment ? (
-        <div className="bg-purple-50 border border-[#A186ED] rounded-sm p-8 text-center mb-10 animate-pulse">
+        <div className="bg-purple-50/60 border border-[#A186ED]/40 rounded-2xl p-8 text-center mb-8 animate-pulse shadow-xs">
           <Loader2 className="w-10 h-10 animate-spin text-[#A186ED] mx-auto mb-4" />
-          <h4 className="font-bold text-gray-700 uppercase text-xs tracking-widest">
-            Esperando Pago...
+          <h4 className="font-bold text-gray-800 uppercase text-xs tracking-widest">
+            Aguardando la confirmación del pago...
           </h4>
-          <p className="text-[13px] text-gray-500 mt-2">
-            Completá la operación en la ventana emergente.
-            <br />
-            Esta pantalla se actualizará automáticamente al terminar.
+          <p className="text-xs text-gray-500 mt-2 max-w-sm mx-auto leading-relaxed">
+            Completá la operación en la pestaña de la pasarela. Esta pantalla se redirigirá automáticamente.
           </p>
         </div>
       ) : (
         <>
-          <h3 className="text-[11px] font-bold mb-4 uppercase tracking-[0.2em] text-gray-400">
+          <h3 className="text-[11px] font-bold mb-4 uppercase tracking-[0.15em] text-gray-400 flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-[#A186ED]" />
             Seleccioná un medio de pago
           </h3>
-          <div className="space-y-3 mb-10">
+
+          <div className="space-y-3 mb-8">
             {mediosDePago.map((medio) => {
               const active = formData.metodoPago === medio.id;
               return (
                 <div
                   key={medio.id}
                   onClick={() => handlePaymentSelect(medio.id)}
-                  className={`p-5 cursor-pointer border rounded-sm transition-all flex items-center justify-between ${
+                  className={`p-4 cursor-pointer border rounded-2xl transition-all duration-200 flex items-center justify-between ${
                     active
-                      ? "border-[#A186ED] bg-purple-50/40"
-                      : "border-gray-200 bg-white hover:border-gray-300"
+                      ? "border-[#A186ED] bg-purple-50/30 ring-2 ring-[#A186ED]/20 shadow-xs"
+                      : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50"
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <div
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${active ? "border-[#A186ED]" : "border-gray-300"}`}
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                        active ? "border-[#A186ED] bg-[#A186ED]" : "border-gray-300"
+                      }`}
                     >
-                      {active && (
-                        <div className="w-2 h-2 bg-[#A186ED] rounded-full" />
-                      )}
+                      {active && <CheckCircle2 className="w-4 h-4 text-white" />}
                     </div>
                     <div>
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2.5 mb-1">
                         {medio.icon}
-                        <span className="text-sm font-bold text-gray-700">
+                        <span className="text-xs font-bold text-gray-800">
                           {medio.label}
                         </span>
                       </div>
-                      <span
-                        className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tight ${medio.badgeClass}`}
-                      >
-                        {medio.extra}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-gray-400 font-medium">
+                          {medio.subtitle}
+                        </span>
+                        <span
+                          className={`text-[9px] px-2 py-0.5 rounded-full uppercase tracking-tight ${medio.badgeClass}`}
+                        >
+                          {medio.extra}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <ChevronRight
-                    className={`w-4 h-4 ${active ? "text-[#A186ED]" : "text-gray-200"}`}
+                    className={`w-4 h-4 transition-transform ${
+                      active ? "text-[#A186ED] translate-x-1" : "text-gray-300"
+                    }`}
                   />
                 </div>
               );
@@ -345,19 +361,22 @@ const Step2Pago: React.FC = () => {
         </>
       )}
 
+      {/* Botón de Finalización */}
       <button
         onClick={finalizarCompra}
         disabled={loading || isCheckingPayment || !formData.metodoPago}
-        className="w-full bg-[#A186ED] text-white py-6 rounded-sm font-bold text-xs uppercase tracking-[0.4em] hover:bg-[#8e72e0] transition-all disabled:bg-gray-200 shadow-xl active:scale-[0.98] flex justify-center items-center gap-3"
+        className="w-full bg-[#A186ED] text-white py-4 rounded-xl font-bold text-xs uppercase tracking-[0.25em] hover:bg-[#8e70e3] transition-all disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed shadow-sm active:scale-[0.99] flex justify-center items-center gap-2"
       >
         {loading ? (
           <>
-            <Loader2 className="w-4 h-4 animate-spin" /> Procesando...
+            <Loader2 className="w-4 h-4 animate-spin" /> Procesando pedido...
           </>
         ) : isCheckingPayment ? (
           "Esperando Confirmación..."
         ) : (
-          "Finalizar Compra"
+          <>
+            <Sparkles className="w-4 h-4" /> Finalizar Compra
+          </>
         )}
       </button>
     </div>

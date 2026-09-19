@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import clsx from "clsx";
@@ -32,7 +34,7 @@ const dancingScript = Dancing_Script({
 });
 
 export const metadata: Metadata = {
-  title: "Moonlight | Tienda con Alma Romántica",
+  title: "Zhyra - Tienda de Ropa y Accesorios con Encanto",
   description: "Descubre productos únicos con un toque de magia y romance.",
 };
 

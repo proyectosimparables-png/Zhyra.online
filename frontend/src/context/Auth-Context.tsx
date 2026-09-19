@@ -13,7 +13,7 @@ import { ExtendedUser } from "@/types/user";
 import type { Session } from "@supabase/supabase-js";
 import { usePathname } from "next/navigation";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 type ProviderType = "supabase" | "local" | null;
 

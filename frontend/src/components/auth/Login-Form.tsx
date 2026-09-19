@@ -101,7 +101,7 @@ export default function LoginForm() {
         </p>
 
         <p className="mt-6 text-xs text-[#7b5ca2] opacity-70">
-          Gracias por visitar Moonlight 💜
+          Gracias por visitar Zhyra.online 💜
         </p>
       </div>
     </div>

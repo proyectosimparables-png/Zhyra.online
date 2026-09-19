@@ -16,6 +16,9 @@ export async function getSecciones(): Promise<SeccionType[]> {
 }
 
 export async function getProductosPublicos(): Promise<Producto[]> {
+  console.log("Fetching public products...");
+  const response = await apiRequest<Producto[]>("/productos");
+  console.log("Fetched products:", response);
   return await apiRequest<Producto[]>("/productos");
 }
 
@@ -81,8 +84,12 @@ export async function getAllCategorias(): Promise<CategoriaType[]> {
 export async function getSeccionBySlug(slug: string): Promise<SeccionType | null> {
   if (!slug) return null;
   try {
+    console.log(`Fetching section by slug: ${slug}`);
     return await apiRequest<SeccionType>(`/productos/secciones/slug/${slug}`);
+
   } catch {
     return null;
   }
 }
+
+

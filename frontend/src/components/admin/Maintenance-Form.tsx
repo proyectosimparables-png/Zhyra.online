@@ -19,7 +19,7 @@ export function MantenimientoForm({ mensaje }: Props) {
 
     setCargando(true);
     // Guardamos el código en la cookie
-    document.cookie = `moonlight_vip_access=${codigo}; path=/; max-age=86400; SameSite=Lax`;
+    document.cookie = `zhyra.online_vip_access=${codigo}; path=/; max-age=86400; SameSite=Lax`;
 
     // Forzamos el refresh para que el middleware vuelva a evaluar con la nueva cookie
     router.push("/");

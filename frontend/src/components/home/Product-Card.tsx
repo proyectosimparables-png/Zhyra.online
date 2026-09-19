@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ShoppingCart, Star, Eye } from "lucide-react";
+import { ShoppingCart,  Eye, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +15,14 @@ interface ProductCardProps {
   imagenHoverUrl?: string;
   nombre: string;
   precio: string | number;
+  promociones?: promocion[];
+  promoName?: string;
+}
+
+interface promocion {
+  id: string;
+  nombre: string;
+  tipo: string;
 }
 
 // ⚡ OPTIMIZACIÓN EN MEMORIA: Creamos el formateador una sola vez fuera del componente.
@@ -31,6 +39,8 @@ const ProductCard = ({
   imagenHoverUrl,
   nombre,
   precio,
+  promociones,
+  promoName,
 }: ProductCardProps) => {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { user } = useAuth();
@@ -58,14 +68,25 @@ const ProductCard = ({
     }
   };
 
+  
   return (
     <Card className="group overflow-hidden bg-white border border-[#ddd] hover:shadow-xl transition-all duration-300 rounded-lg">
       <CardContent className="p-0">
+
         <div
           className="relative aspect-square overflow-hidden bg-gray-100 cursor-pointer"
           onClick={() => handleProtectedNavigation()}
         >
           {/* IMAGENES */}
+                  <div>
+          {promoName && promoName.length > 0 && (
+            <div className="absolute top-3 left-3 z-20">
+              <span className="bg-[#f51818] text-white text-xs font-bold px-2 py-1 rounded-full">
+                {promoName}
+              </span>
+            </div>
+          )}
+        </div>
           {imagenHoverUrl && (
             <Image
               src={imagenHoverUrl}
@@ -106,8 +127,8 @@ const ProductCard = ({
             }}
             className="absolute top-3 right-3 z-20 p-1.5 bg-white/80 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors"
           >
-            <Star
-              className={`h-5 w-5 ${isFavorite(id) ? "fill-[#f5c518] text-[#f5c518]" : "text-[#6c5b7b]"}`}
+           <Heart 
+              className={`h-5 w-5 ${isFavorite(id) ? "fill-[#f51818] text-[#f51f18]" : "text-[#6c5b7b]"}`}
             />
           </button>
 
@@ -119,6 +140,7 @@ const ProductCard = ({
           >
             <ShoppingCart className="h-5 w-5" />
           </Button>
+          
         </div>
 
         {/* Info del producto */}
