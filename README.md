@@ -36,7 +36,7 @@ Proyecto desarrollado en equipo por **Macarena Aliberti** ([@MacarenaAliberti-we
 
 | | Partes principales |
 |---|---|
-| **Macarena** | Gran parte del frontend (home, tarjetas de producto, carrito y checkout), login con Google, integración con Mercado Pago y panel de administración (promociones, cupones, envíos y modo "tienda en construcción"). |
+| **Macarena** | Frontend (home, tarjetas de producto, carrito y checkout), login con Google, integración con Mercado Pago y panel de administración (promociones, cupones, envíos y modo "tienda en construcción"). |
 | **Natalia** | Autenticación con JWT, contenerización con Docker y despliegue en AWS. 
 
 ---
@@ -68,4 +68,4 @@ npm install
 npm run dev
 ```
 
-Cada carpeta necesita su propio archivo `.env` con las variables de entorno del proyecto (base de datos, claves de Mercado Pago y de Google, etc.). **No subas nunca esos archivos al repositorio.**
+Cada carpeta necesita su propio archivo `.env` con las variables de entorno del proyecto (base de datos, claves de Mercado Pago y de Google, etc.). 
